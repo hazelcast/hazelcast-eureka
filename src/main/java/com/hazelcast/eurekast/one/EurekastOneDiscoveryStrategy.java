@@ -45,19 +45,30 @@ import java.util.Properties;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-class EurekastOneDiscoveryStrategy extends AbstractDiscoveryStrategy {
-    private static final DynamicStringProperty EUREKA_PROPS_FILE = DynamicPropertyFactory.getInstance()
-            .getStringProperty("eureka.client.props", "eureka-client");
+import static com.hazelcast.eurekast.one.EurekastOneProperties.EUREKAST_ONE_SYSTEM_PREFIX;
+import static com.hazelcast.eurekast.one.EurekastOneProperties.SELF_REGISTRATION;
+
+class EurekastOneDiscoveryStrategy
+        extends AbstractDiscoveryStrategy {
+
+    private static final DynamicStringProperty EUREKA_PROPS_FILE = //
+            DynamicPropertyFactory.getInstance().getStringProperty("eureka.client.props", "eureka-client");
 
     private final EurekaClient eurekaClient;
     private final DiscoveryManager discoveryManager;
     private final DynamicPropertyFactory dynamicPropertyFactory;
     private final ApplicationInfoManager applicationInfoManager;
 
+    private final boolean selfRegistration;
+    private final boolean clientMode;
+
     private final String applicationName;
 
     EurekastOneDiscoveryStrategy(DiscoveryNode localNode, ILogger logger, Map<String, Comparable> properties) {
         super(logger, properties);
+
+        this.selfRegistration = getOrDefault(EUREKAST_ONE_SYSTEM_PREFIX, SELF_REGISTRATION, true);
+        this.clientMode = localNode == null;
 
         this.discoveryManager = initEurekaEnvironment(localNode);
         this.eurekaClient = DiscoveryManager.getInstance().getEurekaClient();
@@ -86,6 +97,11 @@ class EurekastOneDiscoveryStrategy extends AbstractDiscoveryStrategy {
         if (application != null) {
             List<InstanceInfo> instances = application.getInstances();
             for (InstanceInfo instance : instances) {
+                // Only recognize up and running instances
+                if (instance.getStatus() != InstanceInfo.InstanceStatus.UP) {
+                    continue;
+                }
+
                 InetAddress addr = mapAddress(instance);
                 int port = instance.getPort();
                 Map<String, Object> metadata = (Map) instance.getMetadata();
@@ -97,13 +113,13 @@ class EurekastOneDiscoveryStrategy extends AbstractDiscoveryStrategy {
 
     @Override
     public void start() {
-        applicationInfoManager.setInstanceStatus(InstanceInfo.InstanceStatus.UP);
+        eurekaStatusChange(InstanceInfo.InstanceStatus.UP);
         verifyEurekaRegistration();
     }
 
     @Override
     public void destroy() {
-        applicationInfoManager.setInstanceStatus(InstanceInfo.InstanceStatus.DOWN);
+        eurekaStatusChange(InstanceInfo.InstanceStatus.DOWN);
         discoveryManager.shutdownComponent();
     }
 
@@ -119,7 +135,7 @@ class EurekastOneDiscoveryStrategy extends AbstractDiscoveryStrategy {
 
     private DiscoveryManager initEurekaEnvironment(DiscoveryNode localNode) {
         EurekaInstanceConfig instanceConfig = buildInstanceInfo(localNode);
-        DefaultEurekaClientConfig eurekaClientConfig = new DefaultEurekaClientConfig();
+        DefaultEurekaClientConfig eurekaClientConfig = new EurekastOneAwareConfig();
         DiscoveryManager.getInstance().initComponent(instanceConfig, eurekaClientConfig);
         return DiscoveryManager.getInstance();
     }
@@ -146,8 +162,20 @@ class EurekastOneDiscoveryStrategy extends AbstractDiscoveryStrategy {
 
     private ApplicationInfoManager initApplicationInfoManager() {
         ApplicationInfoManager applicationInfoManager = ApplicationInfoManager.getInstance();
-        applicationInfoManager.setInstanceStatus(InstanceInfo.InstanceStatus.STARTING);
+        eurekaStatusChange(applicationInfoManager, InstanceInfo.InstanceStatus.STARTING);
         return applicationInfoManager;
+    }
+
+    private void eurekaStatusChange(InstanceInfo.InstanceStatus status) {
+        eurekaStatusChange(applicationInfoManager, status);
+    }
+
+    private void eurekaStatusChange(ApplicationInfoManager applicationInfoManager, InstanceInfo.InstanceStatus status) {
+        if (clientMode || !selfRegistration) {
+            return;
+        }
+
+        applicationInfoManager.setInstanceStatus(status);
     }
 
     private void verifyEurekaRegistration() {
@@ -171,7 +199,15 @@ class EurekastOneDiscoveryStrategy extends AbstractDiscoveryStrategy {
         } while (application == null);
     }
 
-    private static class DelegatingInstanceConfig implements EurekaInstanceConfig {
+    private class EurekastOneAwareConfig extends DefaultEurekaClientConfig {
+        @Override
+        public boolean shouldRegisterWithEureka() {
+            return !clientMode && selfRegistration;
+        }
+    }
+
+    private static class DelegatingInstanceConfig
+            implements EurekaInstanceConfig {
 
         private final EurekaInstanceConfig instanceConfig;
         private final DiscoveryNode localNode;

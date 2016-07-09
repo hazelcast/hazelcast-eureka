@@ -26,7 +26,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 
-public class EurekastOneDiscoveryStrategyFactory implements DiscoveryStrategyFactory {
+public class EurekastOneDiscoveryStrategyFactory
+        implements DiscoveryStrategyFactory {
+
+    private static final Collection<PropertyDefinition> PROPERTY_DEFINITIONS = Collections
+            .singleton(EurekastOneProperties.SELF_REGISTRATION);
 
     public Class<? extends DiscoveryStrategy> getDiscoveryStrategyType() {
         return EurekastOneDiscoveryStrategy.class;
@@ -39,6 +43,6 @@ public class EurekastOneDiscoveryStrategyFactory implements DiscoveryStrategyFac
     }
 
     public Collection<PropertyDefinition> getConfigurationProperties() {
-        return Collections.EMPTY_LIST;
+        return PROPERTY_DEFINITIONS;
     }
 }
