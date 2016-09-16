@@ -16,6 +16,21 @@
 
 package com.hazelcast.eureka.one;
 
+import static com.hazelcast.eureka.one.EurekaOneProperties.EUREKA_ONE_SYSTEM_PREFIX;
+import static com.hazelcast.eureka.one.EurekaOneProperties.NAMESPACE;
+import static com.hazelcast.eureka.one.EurekaOneProperties.SELF_REGISTRATION;
+
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.URL;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.concurrent.TimeUnit;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.hazelcast.logging.ILogger;
 import com.hazelcast.logging.NoLogFactory;
@@ -26,31 +41,16 @@ import com.hazelcast.spi.discovery.SimpleDiscoveryNode;
 import com.hazelcast.util.UuidUtil;
 import com.netflix.appinfo.ApplicationInfoManager;
 import com.netflix.appinfo.CloudInstanceConfig;
-import com.netflix.appinfo.MyDataCenterInstanceConfig;
+import com.netflix.appinfo.DataCenterInfo;
 import com.netflix.appinfo.EurekaInstanceConfig;
 import com.netflix.appinfo.InstanceInfo;
-import com.netflix.appinfo.DataCenterInfo;
+import com.netflix.appinfo.MyDataCenterInstanceConfig;
 import com.netflix.appinfo.providers.EurekaConfigBasedInstanceInfoProvider;
 import com.netflix.config.DynamicPropertyFactory;
 import com.netflix.discovery.DefaultEurekaClientConfig;
 import com.netflix.discovery.DiscoveryClient;
 import com.netflix.discovery.EurekaClient;
 import com.netflix.discovery.shared.Application;
-
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.URL;
-import java.net.UnknownHostException;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Properties;
-import java.util.concurrent.TimeUnit;
-
-import static com.hazelcast.eureka.one.EurekaOneProperties.EUREKA_ONE_SYSTEM_PREFIX;
-import static com.hazelcast.eureka.one.EurekaOneProperties.NAMESPACE;
-import static com.hazelcast.eureka.one.EurekaOneProperties.SELF_REGISTRATION;
 
 class EurekaOneDiscoveryStrategy
         extends AbstractDiscoveryStrategy {
@@ -94,6 +94,18 @@ class EurekaOneDiscoveryStrategy
 
         this.applicationInfoManager = initializeApplicationInfoManager(localNode);
         this.eurekaClient = new DiscoveryClient(applicationInfoManager, new EurekaOneAwareConfig(this.namespace));
+    }
+
+    EurekaOneDiscoveryStrategy(EurekaClient eurekaClient, DiscoveryNode localNode, ILogger logger, Map<String, Comparable> properties) {
+        super(logger, properties);
+    
+        this.selfRegistration = getOrDefault(EUREKA_ONE_SYSTEM_PREFIX, SELF_REGISTRATION, true);
+        this.namespace = getOrDefault(EUREKA_ONE_SYSTEM_PREFIX, NAMESPACE, "hazelcast");
+
+        this.clientMode = localNode == null;
+        
+        this.applicationInfoManager = eurekaClient.getApplicationInfoManager();
+        this.eurekaClient = eurekaClient;
     }
 
     private ApplicationInfoManager initializeApplicationInfoManager(DiscoveryNode localNode) {
