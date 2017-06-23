@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2015, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2017, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,21 +16,25 @@
 
 package com.hazelcast.eurekast.one;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.hazelcast.logging.ILogger;
+import com.hazelcast.logging.NoLogFactory;
 import com.hazelcast.nio.Address;
 import com.hazelcast.spi.discovery.AbstractDiscoveryStrategy;
 import com.hazelcast.spi.discovery.DiscoveryNode;
 import com.hazelcast.spi.discovery.SimpleDiscoveryNode;
+import com.hazelcast.util.UuidUtil;
 import com.netflix.appinfo.ApplicationInfoManager;
-import com.netflix.appinfo.CloudInstanceConfig;
-import com.netflix.appinfo.DataCenterInfo;
 import com.netflix.appinfo.EurekaInstanceConfig;
 import com.netflix.appinfo.InstanceInfo;
+import com.netflix.appinfo.CloudInstanceConfig;
 import com.netflix.appinfo.MyDataCenterInstanceConfig;
+import com.netflix.appinfo.DataCenterInfo;
+import com.netflix.appinfo.providers.EurekaConfigBasedInstanceInfoProvider;
 import com.netflix.config.DynamicPropertyFactory;
 import com.netflix.config.DynamicStringProperty;
 import com.netflix.discovery.DefaultEurekaClientConfig;
-import com.netflix.discovery.DiscoveryManager;
+import com.netflix.discovery.DiscoveryClient;
 import com.netflix.discovery.EurekaClient;
 import com.netflix.discovery.shared.Application;
 
@@ -38,11 +42,11 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URL;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collections;
 import java.util.Map;
+import java.util.ArrayList;
 import java.util.Properties;
-import java.util.UUID;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static com.hazelcast.eurekast.one.EurekastOneProperties.EUREKAST_ONE_SYSTEM_PREFIX;
@@ -51,18 +55,36 @@ import static com.hazelcast.eurekast.one.EurekastOneProperties.SELF_REGISTRATION
 class EurekastOneDiscoveryStrategy
         extends AbstractDiscoveryStrategy {
 
-    private static final DynamicStringProperty EUREKA_PROPS_FILE = //
-            DynamicPropertyFactory.getInstance().getStringProperty("eureka.client.props", "eureka-client");
+    @VisibleForTesting static final int NUM_RETRIES = 5;
+    private static final int VERIFICATION_WAIT_TIMEOUT = 5;
+    private static final int DISCOVERY_RETRY_TIMEOUT = 1;
 
     private final EurekaClient eurekaClient;
-    private final DiscoveryManager discoveryManager;
     private final DynamicPropertyFactory dynamicPropertyFactory;
     private final ApplicationInfoManager applicationInfoManager;
 
     private final boolean selfRegistration;
-    private final boolean clientMode;
+    private boolean clientMode;
 
     private final String applicationName;
+    private final DynamicStringProperty propertiesFileName;
+
+
+    @VisibleForTesting
+    EurekastOneDiscoveryStrategy(EurekaClient eurekaClient, DynamicPropertyFactory factory, ApplicationInfoManager manager) {
+        super(new NoLogFactory().getLogger(EurekastOneDiscoveryStrategy.class.getName()),
+                Collections.<String, Comparable>emptyMap());
+
+        this.selfRegistration = getOrDefault(EUREKAST_ONE_SYSTEM_PREFIX, SELF_REGISTRATION, true);
+        this.clientMode = false;
+
+        this.eurekaClient = eurekaClient;
+        this.dynamicPropertyFactory = factory;
+        this.applicationInfoManager = manager;
+
+        this.applicationName = applicationInfoManager.getInfo().getAppName();
+        this.propertiesFileName = dynamicPropertyFactory.getStringProperty("eureka.client.props", "eureka-client.properties");
+    }
 
     EurekastOneDiscoveryStrategy(DiscoveryNode localNode, ILogger logger, Map<String, Comparable> properties) {
         super(logger, properties);
@@ -70,79 +92,29 @@ class EurekastOneDiscoveryStrategy
         this.selfRegistration = getOrDefault(EUREKAST_ONE_SYSTEM_PREFIX, SELF_REGISTRATION, true);
         this.clientMode = localNode == null;
 
-        this.discoveryManager = initEurekaEnvironment(localNode);
-        this.eurekaClient = DiscoveryManager.getInstance().getEurekaClient();
-        this.applicationInfoManager = initApplicationInfoManager();
         this.dynamicPropertyFactory = DynamicPropertyFactory.getInstance();
+        this.propertiesFileName = dynamicPropertyFactory.getStringProperty("eureka.client.props", "eureka-client.properties");
+
+        this.applicationInfoManager = initializeApplicationInfoManager(localNode);
+        this.eurekaClient = new DiscoveryClient(applicationInfoManager, new EurekastOneAwareConfig());
+
         this.applicationName = applicationInfoManager.getInfo().getAppName();
+
     }
 
-    public Iterable<DiscoveryNode> discoverNodes() {
-        List<DiscoveryNode> nodes = new ArrayList<DiscoveryNode>();
+    private ApplicationInfoManager initializeApplicationInfoManager(DiscoveryNode localNode) {
+        EurekaInstanceConfig instanceConfig = buildInstanceConfig(localNode);
 
-        Application application = null;
-        for (int i = 0; i < 5; i++) {
-            application = eurekaClient.getApplication(applicationName);
-            if (application != null) {
-                break;
-            }
+        InstanceInfo instanceInfo = new EurekaConfigBasedInstanceInfoProvider(instanceConfig).get();
+        ApplicationInfoManager manager = new ApplicationInfoManager(instanceConfig, instanceInfo);
+        eurekaStatusChange(manager, InstanceInfo.InstanceStatus.STARTING);
 
-            // retry
-            try {
-                TimeUnit.SECONDS.sleep(1);
-            } catch (InterruptedException almostIgnore) {
-                Thread.currentThread().interrupt();
-            }
-        }
-        if (application != null) {
-            List<InstanceInfo> instances = application.getInstances();
-            for (InstanceInfo instance : instances) {
-                // Only recognize up and running instances
-                if (instance.getStatus() != InstanceInfo.InstanceStatus.UP) {
-                    continue;
-                }
-
-                InetAddress addr = mapAddress(instance);
-                int port = instance.getPort();
-                Map<String, Object> metadata = (Map) instance.getMetadata();
-                nodes.add(new SimpleDiscoveryNode(new Address(addr, port), metadata));
-            }
-        }
-        return nodes;
+        return manager;
     }
 
-    @Override
-    public void start() {
-        eurekaStatusChange(InstanceInfo.InstanceStatus.UP);
-        verifyEurekaRegistration();
-    }
-
-    @Override
-    public void destroy() {
-        eurekaStatusChange(InstanceInfo.InstanceStatus.DOWN);
-        discoveryManager.shutdownComponent();
-    }
-
-    private InetAddress mapAddress(InstanceInfo instance) {
+    private EurekaInstanceConfig buildInstanceConfig(DiscoveryNode localNode) {
         try {
-            return InetAddress.getByName(instance.getIPAddr());
-
-        } catch (UnknownHostException e) {
-            getLogger().warning("InstanceInfo '" + instance + "' could not be resolved");
-        }
-        return null;
-    }
-
-    private DiscoveryManager initEurekaEnvironment(DiscoveryNode localNode) {
-        EurekaInstanceConfig instanceConfig = buildInstanceInfo(localNode);
-        DefaultEurekaClientConfig eurekaClientConfig = new EurekastOneAwareConfig();
-        DiscoveryManager.getInstance().initComponent(instanceConfig, eurekaClientConfig);
-        return DiscoveryManager.getInstance();
-    }
-
-    private EurekaInstanceConfig buildInstanceInfo(DiscoveryNode localNode) {
-        try {
-            String eurekaPropertyFile = EUREKA_PROPS_FILE.get() + ".properties";
+            String eurekaPropertyFile = propertiesFileName.get();
             ClassLoader loader = Thread.currentThread().getContextClassLoader();
             URL url = loader.getResource(eurekaPropertyFile);
             if (url == null) {
@@ -160,10 +132,64 @@ class EurekastOneDiscoveryStrategy
         }
     }
 
-    private ApplicationInfoManager initApplicationInfoManager() {
-        ApplicationInfoManager applicationInfoManager = ApplicationInfoManager.getInstance();
-        eurekaStatusChange(applicationInfoManager, InstanceInfo.InstanceStatus.STARTING);
-        return applicationInfoManager;
+    public Iterable<DiscoveryNode> discoverNodes() {
+        List<DiscoveryNode> nodes = new ArrayList<DiscoveryNode>();
+
+        Application application = null;
+        for (int i = 0; i < NUM_RETRIES; i++) {
+            application = eurekaClient.getApplication(applicationName);
+            if (application != null) {
+                break;
+            }
+            try {
+                TimeUnit.SECONDS.sleep(DISCOVERY_RETRY_TIMEOUT);
+            } catch (InterruptedException almostIgnore) {
+                Thread.currentThread().interrupt();
+            }
+        }
+        if (application != null) {
+            List<InstanceInfo> instances = application.getInstances();
+            for (InstanceInfo instance : instances) {
+                // Only recognize up and running instances
+                if (instance.getStatus() != InstanceInfo.InstanceStatus.UP) {
+                    continue;
+                }
+
+                InetAddress address = mapAddress(instance);
+                if (null == address) {
+                    continue;
+                }
+
+                int port = instance.getPort();
+                Map<String, Object> metadata = (Map) instance.getMetadata();
+                nodes.add(new SimpleDiscoveryNode(new Address(address, port), metadata));
+            }
+        }
+        return nodes;
+    }
+
+    @Override
+    public void start() {
+        eurekaStatusChange(InstanceInfo.InstanceStatus.UP);
+        verifyEurekaRegistration();
+    }
+
+    @Override
+    public void destroy() {
+        eurekaStatusChange(InstanceInfo.InstanceStatus.DOWN);
+        if (null != eurekaClient) {
+            eurekaClient.shutdown();
+        }
+    }
+
+    private InetAddress mapAddress(InstanceInfo instance) {
+        try {
+            return InetAddress.getByName(instance.getIPAddr());
+
+        } catch (UnknownHostException e) {
+            getLogger().warning("InstanceInfo '" + instance + "' could not be resolved");
+        }
+        return null;
     }
 
     private void eurekaStatusChange(InstanceInfo.InstanceStatus status) {
@@ -176,15 +202,21 @@ class EurekastOneDiscoveryStrategy
         }
 
         applicationInfoManager.setInstanceStatus(status);
+
     }
 
-    private void verifyEurekaRegistration() {
-        String vipAddress = dynamicPropertyFactory.getStringProperty("eureka.vipAddress", applicationName).get();
-        Application application = null;
+    @VisibleForTesting
+    void verifyEurekaRegistration() {
+        String applicationName = dynamicPropertyFactory.getStringProperty("eureka.name", this.applicationName).get();
+        Application application;
         do {
             try {
                 getLogger().info("Waiting for registration with Eureka...");
-                application = eurekaClient.getApplication(vipAddress);
+                application = eurekaClient.getApplication(applicationName);
+
+                if (application != null) {
+                    break;
+                }
             } catch (Throwable t) {
                 if (t instanceof Error) {
                     throw (Error) t;
@@ -192,11 +224,15 @@ class EurekastOneDiscoveryStrategy
             }
 
             try {
-                TimeUnit.SECONDS.sleep(5);
+                TimeUnit.SECONDS.sleep(VERIFICATION_WAIT_TIMEOUT);
             } catch (InterruptedException almostIgnore) {
                 Thread.currentThread().interrupt();
             }
-        } while (application == null);
+        } while (true);
+    }
+
+    @VisibleForTesting void setClientMode(boolean clientMode) {
+        this.clientMode = clientMode;
     }
 
     private class EurekastOneAwareConfig extends DefaultEurekaClientConfig {
@@ -206,7 +242,7 @@ class EurekastOneDiscoveryStrategy
         }
     }
 
-    private static class DelegatingInstanceConfig
+    private static final class DelegatingInstanceConfig
             implements EurekaInstanceConfig {
 
         private final EurekaInstanceConfig instanceConfig;
@@ -216,7 +252,7 @@ class EurekastOneDiscoveryStrategy
         private DelegatingInstanceConfig(EurekaInstanceConfig instanceConfig, DiscoveryNode localNode) {
             this.instanceConfig = instanceConfig;
             this.localNode = localNode;
-            this.uuid = UUID.randomUUID().toString();
+            this.uuid =  UuidUtil.newSecureUuidString();
         }
 
         public String getInstanceId() {
@@ -236,6 +272,9 @@ class EurekastOneDiscoveryStrategy
         }
 
         public int getNonSecurePort() {
+            if(null == localNode){
+                return instanceConfig.getNonSecurePort();
+            }
             return localNode.getPrivateAddress().getPort();
         }
 
@@ -284,6 +323,9 @@ class EurekastOneDiscoveryStrategy
         }
 
         public String getIpAddress() {
+            if(null == localNode){
+                return instanceConfig.getIpAddress();
+            }
             return localNode.getPrivateAddress().getHost();
         }
 

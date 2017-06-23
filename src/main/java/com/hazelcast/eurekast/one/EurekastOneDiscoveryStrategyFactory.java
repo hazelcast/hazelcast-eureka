@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2015, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2017, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 
+/**
+ * <p>Configuration class of the Hazelcast Discovery Plugin for Eureka.</p>
+ * <p>For possible configuration properties please refer to the public constants of this class.</p>
+ */
 public class EurekastOneDiscoveryStrategyFactory
         implements DiscoveryStrategyFactory {
 

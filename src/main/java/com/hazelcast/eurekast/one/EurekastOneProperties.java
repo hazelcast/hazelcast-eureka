@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2016, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2017, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ import static com.hazelcast.config.properties.PropertyTypeConverter.BOOLEAN;
  * <p>Configuration class of the Hazelcast Discovery Plugin for <a href="https://github.com/Netflix/eureka">Eureka 1</a>.</p>
  * <p>For possible configuration properties please refer to the public constants of this class.</p>
  */
-public final class EurekastOneProperties {
+final class EurekastOneProperties {
 
     /**
      * <p>Configuration System Environment Prefix: <tt>hazelcast.eurekastone.</tt></p>
@@ -35,17 +35,17 @@ public final class EurekastOneProperties {
      * properties need to be prefixed to prevent collision on property names.<br/>
      * Example: {@link #SELF_REGISTRATION} will be:
      * <pre>
-     *     -Dhazelcast.eurekastone.self-registration-=value
+     *     -Dhazelcast.eurekastone.self-registration=value
      * </pre>
      */
-    public static final String EUREKAST_ONE_SYSTEM_PREFIX = "hazelcast.eurekastone";
+    static final String EUREKAST_ONE_SYSTEM_PREFIX = "hazelcast.eurekastone";
 
     /**
      * <p>Configuration key: <tt>self-registration</tt></p>
      * <p>Defines if the Discovery SPI plugin will register itself with the Eureka 1 service discovery.</p>
      * <p>The default value is: <tt>true</tt></p>
      */
-    public static final PropertyDefinition SELF_REGISTRATION = property("self-registration", BOOLEAN);
+    static final PropertyDefinition SELF_REGISTRATION = property("self-registration", BOOLEAN);
 
     // Prevent instantiation
     private EurekastOneProperties() {
