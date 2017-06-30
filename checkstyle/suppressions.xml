@@ -14,8 +14,8 @@
     <suppress checks="JavadocType" files="/impl/"/>
     <suppress checks="JavadocVariable" files="/impl/"/>
 
-    <!-- AWS -->
-    <suppress checks="JavadocType" files="com/hazelcast/aws/"/>
+    <!-- Eureka -->
+    <suppress checks="JavadocType" files="com/hazelcast/eureka/"/>
 
     <!-- Exclude Clover instrumented sources -->
     <suppress checks="" files="/src-instrumented/"/>

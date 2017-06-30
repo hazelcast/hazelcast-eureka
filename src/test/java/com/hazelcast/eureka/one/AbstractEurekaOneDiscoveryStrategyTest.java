@@ -1,8 +1,7 @@
-package com.hazelcast.eurekast.one;
+package com.hazelcast.eureka.one;
 
 
 import com.netflix.appinfo.ApplicationInfoManager;
-import com.netflix.config.DynamicPropertyFactory;
 import com.netflix.discovery.EurekaClient;
 import org.junit.Before;
 import org.junit.Rule;
@@ -12,7 +11,7 @@ import org.mockito.Mock;
 
 import static org.mockito.Mockito.when;
 
-public abstract class AbstractEurekastOneDiscoveryStrategyTest {
+public abstract class AbstractEurekaOneDiscoveryStrategyTest {
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
@@ -22,7 +21,7 @@ public abstract class AbstractEurekastOneDiscoveryStrategyTest {
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     ApplicationInfoManager applicationInfoManager;
 
-    EurekastOneDiscoveryStrategy strategy;
+    EurekaOneDiscoveryStrategy strategy;
 
     final String APPLICATION_NAME = "hazelcast-test";
 

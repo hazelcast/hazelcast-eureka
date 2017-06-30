@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.hazelcast.eurekast.one;
+package com.hazelcast.eureka.one;
 
 import com.google.common.collect.Lists;
 import com.hazelcast.config.properties.PropertyDefinition;
@@ -24,28 +24,27 @@ import com.hazelcast.spi.discovery.DiscoveryStrategy;
 import com.hazelcast.spi.discovery.DiscoveryStrategyFactory;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Map;
 
 /**
  * <p>Configuration class of the Hazelcast Discovery Plugin for Eureka.</p>
  * <p>For possible configuration properties please refer to the public constants of this class.</p>
  */
-public class EurekastOneDiscoveryStrategyFactory
+public class EurekaOneDiscoveryStrategyFactory
         implements DiscoveryStrategyFactory {
 
     private static final Collection<PropertyDefinition> PROPERTY_DEFINITIONS = Lists.newArrayList(
-            EurekastOneProperties.SELF_REGISTRATION,
-            EurekastOneProperties.NAMESPACE);
+            EurekaOneProperties.SELF_REGISTRATION,
+            EurekaOneProperties.NAMESPACE);
 
     public Class<? extends DiscoveryStrategy> getDiscoveryStrategyType() {
-        return EurekastOneDiscoveryStrategy.class;
+        return EurekaOneDiscoveryStrategy.class;
     }
 
     public DiscoveryStrategy newDiscoveryStrategy(DiscoveryNode discoveryNode, ILogger logger,
                                                   Map<String, Comparable> properties) {
 
-        return new EurekastOneDiscoveryStrategy(discoveryNode, logger, properties);
+        return new EurekaOneDiscoveryStrategy(discoveryNode, logger, properties);
     }
 
     public Collection<PropertyDefinition> getConfigurationProperties() {

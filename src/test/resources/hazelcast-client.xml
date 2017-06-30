@@ -4,7 +4,7 @@
 
   <network>
     <discovery-strategies>
-      <discovery-strategy class="com.hazelcast.eurekast.one.EurekastOneDiscoveryStrategy" enabled="true">
+      <discovery-strategy class="com.hazelcast.eureka.one.EurekaOneDiscoveryStrategy" enabled="true">
         <properties>
           <property name="namespace">hazelcast</property>
         </properties>

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.hazelcast.eurekast.one;
+package com.hazelcast.eureka.one;
 
 import com.hazelcast.client.test.TestHazelcastFactory;
 import com.hazelcast.config.Config;
@@ -44,7 +44,6 @@ import java.net.URI;
 import java.util.Collections;
 import java.util.List;
 
-import static com.hazelcast.eurekast.one.EurekastOneDiscoveryStrategy.DEFAULT_NAMESPACE;
 import static com.netflix.discovery.shared.transport.EurekaHttpResponse.anEurekaHttpResponse;
 import static junit.framework.TestCase.assertNotNull;
 import static org.hamcrest.CoreMatchers.is;
@@ -71,7 +70,7 @@ public class HazelcastClientTestCase extends HazelcastTestSupport {
 
         reset(requestHandler);
 
-        configure(DEFAULT_NAMESPACE, APP_NAME);
+        configure(EurekaOneDiscoveryStrategy.DEFAULT_NAMESPACE, APP_NAME);
     }
 
     private void configure(String namespace, String appName){

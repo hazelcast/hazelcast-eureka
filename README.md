@@ -20,7 +20,7 @@ given example configurations assume available DNS resolution for Eureka server.
 
 ### Configuring Eureka Discovery for Hazelcast Cluster Members
 
-- Add the *hazelcast-eurekast-one.jar* dependency to your project. 
+- Add the *hazelcast-eureka-one.jar* dependency to your project. 
 - Disable join over multicast, TCP/IP and AWS by setting the `enabled` attribute of the related tags to `false`.
 - Enable Discovery SPI by adding "hazelcast.discovery.enabled" property to your config.
 - Add *eureka-client.properties* file to working directory or use `eureka.client.props` dynamic property to define 
@@ -42,7 +42,7 @@ The following is an example declarative configuration.
             <tcp-ip enabled="false"/>
             <aws enabled="false"/>
             <discovery-strategies>
-                <discovery-strategy class="com.hazelcast.eurekast.one.EurekastOneDiscoveryStrategy" enabled="true">
+                <discovery-strategy class="EurekaOneDiscoveryStrategy" enabled="true">
                     <properties>
                        <property name="self-registration">true</property>
                        <property name="namespace">hazelcast</property>
@@ -73,7 +73,7 @@ identical names in regarding `eureka-client.properties` on EC2 hosts for buildin
 
 ### Configuring Eureka Discovery for Hazelcast Client
 
-- Add the *hazelcast-eurekast-one.jar* dependency to your project. 
+- Add the *hazelcast-eureka-one.jar* dependency to your project. 
 - Add *eureka-client.properties* file to working directory or use `eureka.client.props` dynamic property to define 
 property file path without `properties` extension.
 
@@ -83,7 +83,7 @@ The following is an example declarative configuration.
 <network>
     ...
     <discovery-strategies>
-        <discovery-strategy class="com.hazelcast.eurekast.one.EurekastOneDiscoveryStrategy" enabled="true">
+        <discovery-strategy class="EurekaOneDiscoveryStrategy" enabled="true">
             <properties>
                 <property name="namespace">hazelcast</property>
             </properties>

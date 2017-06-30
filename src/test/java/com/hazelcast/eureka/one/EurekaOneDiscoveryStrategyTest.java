@@ -1,25 +1,16 @@
-package com.hazelcast.eurekast.one;
+package com.hazelcast.eureka.one;
 
 import com.hazelcast.spi.discovery.DiscoveryNode;
-import com.netflix.appinfo.ApplicationInfoManager;
 import com.netflix.appinfo.InstanceInfo;
-import com.netflix.config.DynamicPropertyFactory;
-import com.netflix.discovery.EurekaClient;
 import com.netflix.discovery.shared.Application;
 import com.netflix.discovery.util.InstanceInfoGenerator;
 import org.apache.commons.lang.RandomStringUtils;
-import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
-import org.mockito.Answers;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.List;
 
-import static com.hazelcast.eurekast.one.EurekastOneDiscoveryStrategy.NUM_RETRIES;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
@@ -27,11 +18,11 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class EurekastOneDiscoveryStrategyTest extends AbstractEurekastOneDiscoveryStrategyTest{
+public class EurekaOneDiscoveryStrategyTest extends AbstractEurekaOneDiscoveryStrategyTest {
 
     @Override
     protected void initializeStrategy() {
-        strategy = new EurekastOneDiscoveryStrategy(eurekaClient,
+        strategy = new EurekaOneDiscoveryStrategy(eurekaClient,
                 applicationInfoManager,
                 false);
     }
@@ -107,7 +98,7 @@ public class EurekastOneDiscoveryStrategyTest extends AbstractEurekastOneDiscove
                 .thenReturn(null);
 
         Iterable<DiscoveryNode> actual = strategy.discoverNodes();
-        verify(eurekaClient, times(NUM_RETRIES)).getApplication(APPLICATION_NAME);
+        verify(eurekaClient, times(EurekaOneDiscoveryStrategy.NUM_RETRIES)).getApplication(APPLICATION_NAME);
 
         assertThat(actual.iterator().hasNext(), is(false));
     }

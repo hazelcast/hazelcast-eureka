@@ -1,1 +1,1 @@
-com.hazelcast.eurekast.one.EurekastOneDiscoveryStrategyFactory
+com.hazelcast.eureka.one.EurekaOneDiscoveryStrategyFactory

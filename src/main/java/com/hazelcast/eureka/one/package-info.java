@@ -18,5 +18,5 @@
 /**
  * Provides interfaces/classes for Hazelcast Eureka SPI.
  */
-package com.hazelcast.eurekast.one;
+package com.hazelcast.eureka.one;
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.hazelcast.eurekast.one;
+package com.hazelcast.eureka.one;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.hazelcast.logging.ILogger;
@@ -24,7 +24,12 @@ import com.hazelcast.spi.discovery.AbstractDiscoveryStrategy;
 import com.hazelcast.spi.discovery.DiscoveryNode;
 import com.hazelcast.spi.discovery.SimpleDiscoveryNode;
 import com.hazelcast.util.UuidUtil;
-import com.netflix.appinfo.*;
+import com.netflix.appinfo.ApplicationInfoManager;
+import com.netflix.appinfo.CloudInstanceConfig;
+import com.netflix.appinfo.MyDataCenterInstanceConfig;
+import com.netflix.appinfo.EurekaInstanceConfig;
+import com.netflix.appinfo.InstanceInfo;
+import com.netflix.appinfo.DataCenterInfo;
 import com.netflix.appinfo.providers.EurekaConfigBasedInstanceInfoProvider;
 import com.netflix.config.DynamicPropertyFactory;
 import com.netflix.discovery.DefaultEurekaClientConfig;
@@ -36,12 +41,18 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URL;
 import java.net.UnknownHostException;
-import java.util.*;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
-import static com.hazelcast.eurekast.one.EurekastOneProperties.*;
+import static com.hazelcast.eureka.one.EurekaOneProperties.EUREKA_ONE_SYSTEM_PREFIX;
+import static com.hazelcast.eureka.one.EurekaOneProperties.NAMESPACE;
+import static com.hazelcast.eureka.one.EurekaOneProperties.SELF_REGISTRATION;
 
-class EurekastOneDiscoveryStrategy
+class EurekaOneDiscoveryStrategy
         extends AbstractDiscoveryStrategy {
 
     @VisibleForTesting static final String DEFAULT_NAMESPACE = "hazelcast";
@@ -58,14 +69,14 @@ class EurekastOneDiscoveryStrategy
     private final String namespace;
 
     @VisibleForTesting
-    EurekastOneDiscoveryStrategy(EurekaClient eurekaClient,
-                                 ApplicationInfoManager manager,
-                                 boolean clientMode) {
-        super(new NoLogFactory().getLogger(EurekastOneDiscoveryStrategy.class.getName()),
+    EurekaOneDiscoveryStrategy(EurekaClient eurekaClient,
+                               ApplicationInfoManager manager,
+                               boolean clientMode) {
+        super(new NoLogFactory().getLogger(EurekaOneDiscoveryStrategy.class.getName()),
                 Collections.<String, Comparable>emptyMap());
 
-        this.selfRegistration = getOrDefault(EUREKAST_ONE_SYSTEM_PREFIX, SELF_REGISTRATION, true);
-        this.namespace = getOrDefault(EUREKAST_ONE_SYSTEM_PREFIX, NAMESPACE, DEFAULT_NAMESPACE);
+        this.selfRegistration = getOrDefault(EUREKA_ONE_SYSTEM_PREFIX, SELF_REGISTRATION, true);
+        this.namespace = getOrDefault(EUREKA_ONE_SYSTEM_PREFIX, NAMESPACE, DEFAULT_NAMESPACE);
 
         this.clientMode = clientMode;
 
@@ -73,16 +84,16 @@ class EurekastOneDiscoveryStrategy
         this.applicationInfoManager = manager;
     }
 
-    EurekastOneDiscoveryStrategy(DiscoveryNode localNode, ILogger logger, Map<String, Comparable> properties) {
+    EurekaOneDiscoveryStrategy(DiscoveryNode localNode, ILogger logger, Map<String, Comparable> properties) {
         super(logger, properties);
 
-        this.selfRegistration = getOrDefault(EUREKAST_ONE_SYSTEM_PREFIX, SELF_REGISTRATION, true);
-        this.namespace = getOrDefault(EUREKAST_ONE_SYSTEM_PREFIX, NAMESPACE, "hazelcast");
+        this.selfRegistration = getOrDefault(EUREKA_ONE_SYSTEM_PREFIX, SELF_REGISTRATION, true);
+        this.namespace = getOrDefault(EUREKA_ONE_SYSTEM_PREFIX, NAMESPACE, "hazelcast");
 
         this.clientMode = localNode == null;
 
         this.applicationInfoManager = initializeApplicationInfoManager(localNode);
-        this.eurekaClient = new DiscoveryClient(applicationInfoManager, new EurekastOneAwareConfig(this.namespace));
+        this.eurekaClient = new DiscoveryClient(applicationInfoManager, new EurekaOneAwareConfig(this.namespace));
     }
 
     private ApplicationInfoManager initializeApplicationInfoManager(DiscoveryNode localNode) {
@@ -221,8 +232,8 @@ class EurekastOneDiscoveryStrategy
         } while (true);
     }
 
-    private class EurekastOneAwareConfig extends DefaultEurekaClientConfig {
-        EurekastOneAwareConfig(String namespace) {
+    private class EurekaOneAwareConfig extends DefaultEurekaClientConfig {
+        EurekaOneAwareConfig(String namespace) {
             super(namespace);
         }
 
@@ -262,7 +273,7 @@ class EurekastOneDiscoveryStrategy
         }
 
         public int getNonSecurePort() {
-            if(null == localNode){
+            if (null == localNode) {
                 return instanceConfig.getNonSecurePort();
             }
             return localNode.getPrivateAddress().getPort();
@@ -313,7 +324,7 @@ class EurekastOneDiscoveryStrategy
         }
 
         public String getIpAddress() {
-            if(null == localNode){
+            if (null == localNode) {
                 return instanceConfig.getIpAddress();
             }
             return localNode.getPrivateAddress().getHost();

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.hazelcast.eurekast.one;
+package com.hazelcast.eureka.one;
 
 import com.hazelcast.config.properties.PropertyDefinition;
 import com.hazelcast.config.properties.SimplePropertyDefinition;
@@ -27,23 +27,23 @@ import static com.hazelcast.config.properties.PropertyTypeConverter.STRING;
  * <p>Configuration class of the Hazelcast Discovery Plugin for <a href="https://github.com/Netflix/eureka">Eureka 1</a>.</p>
  * <p>For possible configuration properties please refer to the public constants of this class.</p>
  */
-public final class EurekastOneProperties {
+public final class EurekaOneProperties {
 
     /**
-     * <p>Configuration System Environment Prefix: <tt>hazelcast.eurekastone.</tt></p>
+     * <p>Configuration System Environment Prefix: <tt>hazelcast.eurekaone.</tt></p>
      * Defines the prefix for system environment variables and JVM command line parameters.<br/>
      * Defining or overriding properties as JVM parameters or using the system environment, those
      * properties need to be prefixed to prevent collision on property names.<br/>
      * Example: {@link #SELF_REGISTRATION} will be:
      * <pre>
-     *     -Dhazelcast.eurekastone.self-registration=value
+     *     -Dhazelcast.eurekaone.self-registration=value
      * </pre>
      * Example: {@link #NAMESPACE} will be:
      * <pre>
-     *     -Dhazelcast.eurekastone.namespace=value
+     *     -Dhazelcast.eurekaone.namespace=value
      * </pre>
      */
-    public static final String EUREKAST_ONE_SYSTEM_PREFIX = "hazelcast.eurekastone";
+    public static final String EUREKA_ONE_SYSTEM_PREFIX = "hazelcast.eurekaone";
 
     /**
      * <p>Configuration key: <tt>self-registration</tt></p>
@@ -54,13 +54,14 @@ public final class EurekastOneProperties {
 
     /**
      * <p>Configuration key: <tt>namespace</tt></p>
-     * <p>Definition for providing different namespaces in order to not collide with other service registry clients in eureka-client.properties file.</p>
+     * <p>Definition for providing different namespaces in order to not collide with other service registry clients in
+     * eureka-client.properties file.</p>
      * <p>The default value is: <tt>hazelcast</tt></p>
      */
     public static final PropertyDefinition NAMESPACE = property("namespace", STRING);
 
     // Prevent instantiation
-    private EurekastOneProperties() {
+    private EurekaOneProperties() {
     }
 
     private static PropertyDefinition property(String key, TypeConverter typeConverter) {

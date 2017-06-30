@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.hazelcast.eurekast.one;
+package com.hazelcast.eureka.one;
 
 
 import com.netflix.appinfo.InstanceInfo;
@@ -26,11 +26,11 @@ import org.mockito.runners.MockitoJUnitRunner;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class EurekastOneDiscoveryStrategyClientTest extends AbstractEurekastOneDiscoveryStrategyTest{
+public class EurekaOneDiscoveryStrategyClientTest extends AbstractEurekaOneDiscoveryStrategyTest {
 
     @Override
     protected void initializeStrategy() {
-        strategy = new EurekastOneDiscoveryStrategy(eurekaClient,
+        strategy = new EurekaOneDiscoveryStrategy(eurekaClient,
                 applicationInfoManager,
                 true);
     }
