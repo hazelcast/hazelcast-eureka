@@ -16,6 +16,7 @@
 
 package com.hazelcast.eurekast.one;
 
+import com.google.common.collect.Lists;
 import com.hazelcast.config.properties.PropertyDefinition;
 import com.hazelcast.logging.ILogger;
 import com.hazelcast.spi.discovery.DiscoveryNode;
@@ -33,8 +34,9 @@ import java.util.Map;
 public class EurekastOneDiscoveryStrategyFactory
         implements DiscoveryStrategyFactory {
 
-    private static final Collection<PropertyDefinition> PROPERTY_DEFINITIONS = Collections
-            .singleton(EurekastOneProperties.SELF_REGISTRATION);
+    private static final Collection<PropertyDefinition> PROPERTY_DEFINITIONS = Lists.newArrayList(
+            EurekastOneProperties.SELF_REGISTRATION,
+            EurekastOneProperties.NAMESPACE);
 
     public Class<? extends DiscoveryStrategy> getDiscoveryStrategyType() {
         return EurekastOneDiscoveryStrategy.class;

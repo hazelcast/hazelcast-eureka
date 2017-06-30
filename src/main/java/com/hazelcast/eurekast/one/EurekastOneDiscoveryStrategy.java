@@ -24,15 +24,9 @@ import com.hazelcast.spi.discovery.AbstractDiscoveryStrategy;
 import com.hazelcast.spi.discovery.DiscoveryNode;
 import com.hazelcast.spi.discovery.SimpleDiscoveryNode;
 import com.hazelcast.util.UuidUtil;
-import com.netflix.appinfo.ApplicationInfoManager;
-import com.netflix.appinfo.EurekaInstanceConfig;
-import com.netflix.appinfo.InstanceInfo;
-import com.netflix.appinfo.CloudInstanceConfig;
-import com.netflix.appinfo.MyDataCenterInstanceConfig;
-import com.netflix.appinfo.DataCenterInfo;
+import com.netflix.appinfo.*;
 import com.netflix.appinfo.providers.EurekaConfigBasedInstanceInfoProvider;
 import com.netflix.config.DynamicPropertyFactory;
-import com.netflix.config.DynamicStringProperty;
 import com.netflix.discovery.DefaultEurekaClientConfig;
 import com.netflix.discovery.DiscoveryClient;
 import com.netflix.discovery.EurekaClient;
@@ -42,64 +36,53 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URL;
 import java.net.UnknownHostException;
-import java.util.Collections;
-import java.util.Map;
-import java.util.ArrayList;
-import java.util.Properties;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
-import static com.hazelcast.eurekast.one.EurekastOneProperties.EUREKAST_ONE_SYSTEM_PREFIX;
-import static com.hazelcast.eurekast.one.EurekastOneProperties.SELF_REGISTRATION;
+import static com.hazelcast.eurekast.one.EurekastOneProperties.*;
 
 class EurekastOneDiscoveryStrategy
         extends AbstractDiscoveryStrategy {
 
+    @VisibleForTesting static final String DEFAULT_NAMESPACE = "hazelcast";
     @VisibleForTesting static final int NUM_RETRIES = 5;
     private static final int VERIFICATION_WAIT_TIMEOUT = 5;
     private static final int DISCOVERY_RETRY_TIMEOUT = 1;
 
     private final EurekaClient eurekaClient;
-    private final DynamicPropertyFactory dynamicPropertyFactory;
     private final ApplicationInfoManager applicationInfoManager;
 
     private final boolean selfRegistration;
-    private boolean clientMode;
+    private final boolean clientMode;
 
-    private final String applicationName;
-    private final DynamicStringProperty propertiesFileName;
-
+    private final String namespace;
 
     @VisibleForTesting
-    EurekastOneDiscoveryStrategy(EurekaClient eurekaClient, DynamicPropertyFactory factory, ApplicationInfoManager manager) {
+    EurekastOneDiscoveryStrategy(EurekaClient eurekaClient,
+                                 ApplicationInfoManager manager,
+                                 boolean clientMode) {
         super(new NoLogFactory().getLogger(EurekastOneDiscoveryStrategy.class.getName()),
                 Collections.<String, Comparable>emptyMap());
 
         this.selfRegistration = getOrDefault(EUREKAST_ONE_SYSTEM_PREFIX, SELF_REGISTRATION, true);
-        this.clientMode = false;
+        this.namespace = getOrDefault(EUREKAST_ONE_SYSTEM_PREFIX, NAMESPACE, DEFAULT_NAMESPACE);
+
+        this.clientMode = clientMode;
 
         this.eurekaClient = eurekaClient;
-        this.dynamicPropertyFactory = factory;
         this.applicationInfoManager = manager;
-
-        this.applicationName = applicationInfoManager.getInfo().getAppName();
-        this.propertiesFileName = dynamicPropertyFactory.getStringProperty("eureka.client.props", "eureka-client.properties");
     }
 
     EurekastOneDiscoveryStrategy(DiscoveryNode localNode, ILogger logger, Map<String, Comparable> properties) {
         super(logger, properties);
 
         this.selfRegistration = getOrDefault(EUREKAST_ONE_SYSTEM_PREFIX, SELF_REGISTRATION, true);
+        this.namespace = getOrDefault(EUREKAST_ONE_SYSTEM_PREFIX, NAMESPACE, "hazelcast");
+
         this.clientMode = localNode == null;
 
-        this.dynamicPropertyFactory = DynamicPropertyFactory.getInstance();
-        this.propertiesFileName = dynamicPropertyFactory.getStringProperty("eureka.client.props", "eureka-client.properties");
-
         this.applicationInfoManager = initializeApplicationInfoManager(localNode);
-        this.eurekaClient = new DiscoveryClient(applicationInfoManager, new EurekastOneAwareConfig());
-
-        this.applicationName = applicationInfoManager.getInfo().getAppName();
-
+        this.eurekaClient = new DiscoveryClient(applicationInfoManager, new EurekastOneAwareConfig(this.namespace));
     }
 
     private ApplicationInfoManager initializeApplicationInfoManager(DiscoveryNode localNode) {
@@ -114,7 +97,13 @@ class EurekastOneDiscoveryStrategy
 
     private EurekaInstanceConfig buildInstanceConfig(DiscoveryNode localNode) {
         try {
-            String eurekaPropertyFile = propertiesFileName.get();
+
+            String configProperty = DynamicPropertyFactory
+                    .getInstance()
+                    .getStringProperty("eureka.client.props", "eureka-client")
+                    .get();
+
+            String eurekaPropertyFile = String.format("%s.properties", configProperty);
             ClassLoader loader = Thread.currentThread().getContextClassLoader();
             URL url = loader.getResource(eurekaPropertyFile);
             if (url == null) {
@@ -122,11 +111,13 @@ class EurekastOneDiscoveryStrategy
             }
             Properties props = new Properties();
             props.load(url.openStream());
-            String value = props.getProperty("eureka.datacenter", "");
+
+            String key = String.format("%s.datacenter", this.namespace);
+            String value = props.getProperty(key, "");
             if ("cloud".equals(value.trim().toLowerCase())) {
-                return new DelegatingInstanceConfig(new CloudInstanceConfig(), localNode);
+                return new DelegatingInstanceConfig(new CloudInstanceConfig(this.namespace), localNode);
             }
-            return new DelegatingInstanceConfig(new MyDataCenterInstanceConfig(), localNode);
+            return new DelegatingInstanceConfig(new MyDataCenterInstanceConfig(this.namespace), localNode);
         } catch (IOException e) {
             throw new IllegalStateException("Cannot build EurekaInstanceInfo", e);
         }
@@ -134,6 +125,7 @@ class EurekastOneDiscoveryStrategy
 
     public Iterable<DiscoveryNode> discoverNodes() {
         List<DiscoveryNode> nodes = new ArrayList<DiscoveryNode>();
+        String applicationName = applicationInfoManager.getEurekaInstanceConfig().getAppname();
 
         Application application = null;
         for (int i = 0; i < NUM_RETRIES; i++) {
@@ -200,14 +192,12 @@ class EurekastOneDiscoveryStrategy
         if (clientMode || !selfRegistration) {
             return;
         }
-
         applicationInfoManager.setInstanceStatus(status);
-
     }
 
     @VisibleForTesting
     void verifyEurekaRegistration() {
-        String applicationName = dynamicPropertyFactory.getStringProperty("eureka.name", this.applicationName).get();
+        String applicationName = applicationInfoManager.getEurekaInstanceConfig().getAppname();
         Application application;
         do {
             try {
@@ -231,11 +221,11 @@ class EurekastOneDiscoveryStrategy
         } while (true);
     }
 
-    @VisibleForTesting void setClientMode(boolean clientMode) {
-        this.clientMode = clientMode;
-    }
-
     private class EurekastOneAwareConfig extends DefaultEurekaClientConfig {
+        EurekastOneAwareConfig(String namespace) {
+            super(namespace);
+        }
+
         @Override
         public boolean shouldRegisterWithEureka() {
             return !clientMode && selfRegistration;

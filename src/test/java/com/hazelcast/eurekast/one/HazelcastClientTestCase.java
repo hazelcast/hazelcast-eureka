@@ -44,15 +44,17 @@ import java.net.URI;
 import java.util.Collections;
 import java.util.List;
 
+import static com.hazelcast.eurekast.one.EurekastOneDiscoveryStrategy.DEFAULT_NAMESPACE;
 import static com.netflix.discovery.shared.transport.EurekaHttpResponse.anEurekaHttpResponse;
 import static junit.framework.TestCase.assertNotNull;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 
 public class HazelcastClientTestCase extends HazelcastTestSupport {
 
     private static final String APP_NAME = "hazelcast-test";
-    private static final String VIP_ADDRESS = "hazelcast-test-vip";
 
     @Rule
     public SimpleEurekaHttpServerResource resource = new SimpleEurekaHttpServerResource();
@@ -69,13 +71,15 @@ public class HazelcastClientTestCase extends HazelcastTestSupport {
 
         reset(requestHandler);
 
-        URI serviceUri = server.getServiceURI();
+        configure(DEFAULT_NAMESPACE, APP_NAME);
+    }
 
+    private void configure(String namespace, String appName){
+        URI serviceUri = server.getServiceURI();
         AbstractConfiguration configInstance = ConfigurationManager.getConfigInstance();
-        configInstance.setProperty("eureka.serviceUrl.default", serviceUri.toString());
-        configInstance.setProperty("eureka.port", serviceUri.getPort());
-        configInstance.setProperty("eureka.name", APP_NAME);
-        configInstance.setProperty("eureka.vipAddress", VIP_ADDRESS);
+        configInstance.setProperty(namespace + ".serviceUrl.default", serviceUri.toString());
+        configInstance.setProperty(namespace + ".port", serviceUri.getPort());
+        configInstance.setProperty(namespace + ".name", appName);
     }
 
     @After
@@ -182,14 +186,44 @@ public class HazelcastClientTestCase extends HazelcastTestSupport {
         assertClusterSizeEventually(2, hz1);
         assertClusterSizeEventually(2, hz2);
 
-        verify(requestHandler, times(0)).register(any(InstanceInfo.class));
+        verify(requestHandler, after(5000).never()).register(any(InstanceInfo.class));
 
     }
 
-    private EurekaHttpResponse<Applications> generateMockResponse(List<InstanceInfo> infoList){
+    @Test
+    public void testNamespaceRegistration(){
+        final String appName = "other";
+        final String namespace = "hz";
+        configure(namespace, appName);
+
+        EurekaHttpResponse<Applications> response = generateMockResponse(Collections.<InstanceInfo>emptyList(), appName);
+        when(requestHandler.getApplications()).thenReturn(response);
+
+        Config config = new XmlConfigBuilder().build();
+        DiscoveryConfig discoveryConfig = config.getNetworkConfig().getJoin().getDiscoveryConfig();
+        DiscoveryStrategyConfig strategyConfig = discoveryConfig.getDiscoveryStrategyConfigs().iterator().next();
+        strategyConfig.addProperty("namespace", namespace);
+
+        HazelcastInstance hz1 = factory.newHazelcastInstance(config);
+
+        assertClusterSizeEventually(1, hz1);
+
+        ArgumentCaptor<InstanceInfo> captor = ArgumentCaptor.forClass(InstanceInfo.class);
+        verify(requestHandler, timeout(5000).atLeastOnce()).register(captor.capture());
+
+        String actual = captor.getValue().getAppName().toLowerCase();
+        assertThat(actual, is(appName));
+
+    }
+
+    private EurekaHttpResponse<Applications> generateMockResponse(List<InstanceInfo> infoList) {
+        return generateMockResponse(infoList, APP_NAME);
+    }
+
+    private EurekaHttpResponse<Applications> generateMockResponse(List<InstanceInfo> infoList, String appName){
 
         Application application = new Application();
-        application.setName(APP_NAME);
+        application.setName(appName);
         for(InstanceInfo info : infoList){
             application.addInstance(info);
         }

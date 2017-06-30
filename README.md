@@ -24,7 +24,7 @@ given example configurations assume available DNS resolution for Eureka server.
 - Disable join over multicast, TCP/IP and AWS by setting the `enabled` attribute of the related tags to `false`.
 - Enable Discovery SPI by adding "hazelcast.discovery.enabled" property to your config.
 - Add *eureka-client.properties* file to working directory or use `eureka.client.props` dynamic property to define 
-property file full path.
+property file path without `properties` extension.
 
 The following is an example declarative configuration.
 
@@ -43,35 +43,50 @@ The following is an example declarative configuration.
             <aws enabled="false"/>
             <discovery-strategies>
                 <discovery-strategy class="com.hazelcast.eurekast.one.EurekastOneDiscoveryStrategy" enabled="true">
+                    <properties>
+                       <property name="self-registration">true</property>
+                       <property name="namespace">hazelcast</property>
+                    </properties>
                 </discovery-strategy>
             </discovery-strategies>
           </join>
       </network>
  </hazelcast>
 ```
-Below you can also find an example of Eureka client properties.
+* `self-registration`: Defines if the Discovery SPI plugin will register itself with the Eureka 1 service discovery. 
+It is optional. Default value is `true`.
+* `namespace`: Definition for providing different namespaces in order to not to collide with other service registry clients 
+in eureka-client.properties file. It is optional. Default value is `hazelcast`.
+
+Below you can also find an example of Eureka client properties. 
 
 ```$properties
-eureka.environment=prod
-eureka.shouldUseDns=false
-eureka.datacenter=cloud
-eureka.name=hazelcast-test
-eureka.serviceUrl.default=http://<your-eureka-server-url>/eureka/v2/
+hazelcast.environment=prod
+hazelcast.shouldUseDns=false
+hazelcast.datacenter=cloud
+hazelcast.name=hazelcast-test
+hazelcast.serviceUrl.default=http://<your-eureka-server-url>
 ```
+
+> `IMPORTANT`: `hazelcast.name` property is crucial for cluster members to discover each other. Please give 
+identical names in regarding `eureka-client.properties` on EC2 hosts for building cluster of your choice properly.
 
 ### Configuring Eureka Discovery for Hazelcast Client
 
 - Add the *hazelcast-eurekast-one.jar* dependency to your project. 
 - Add *eureka-client.properties* file to working directory or use `eureka.client.props` dynamic property to define 
-property file 
+property file path without `properties` extension.
 
 The following is an example declarative configuration.
 
-```$xml
+```xml
 <network>
     ...
     <discovery-strategies>
         <discovery-strategy class="com.hazelcast.eurekast.one.EurekastOneDiscoveryStrategy" enabled="true">
+            <properties>
+                <property name="namespace">hazelcast</property>
+            </properties>
         </discovery-strategy>
     </discovery-strategies>
 </network>
@@ -79,16 +94,17 @@ The following is an example declarative configuration.
 
 Below you can also find an example of Eureka client properties.
 ```$properties
-eureka.environment=prod
-eureka.shouldUseDns=false
-eureka.datacenter=cloud
-eureka.name=hazelcast-test
-eureka.serviceUrl.default=http://<your-eureka-server-url>/eureka/v2/
+hazelcast.environment=prod
+hazelcast.shouldUseDns=false
+hazelcast.datacenter=cloud
+hazelcast.name=hazelcast-test
+hazelcast.serviceUrl.default=http://<your-eureka-server-url>/eureka/v2/
 ```
 
-> `NOTE:` Hazelcast clients do not register themselves to Eureka server. Therefore, if you
- need to your applications to register to Eureka also, you may pass required client
- properties file for Hazelcast client with `eureka.client.props` dynamic property.
+> `NOTE:` Hazelcast clients do not register themselves to Eureka server with given `namespace` or default namespace, 
+which is `hazelcast`. Therefore, `self-registration` property is overridden and it has no effect.
+
+> `IMPORTANT`: `hazelcast.name` property is crucial for clients to discover cluster members.
 
 ## Debugging
 

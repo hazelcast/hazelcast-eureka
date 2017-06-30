@@ -5,6 +5,9 @@
   <network>
     <discovery-strategies>
       <discovery-strategy class="com.hazelcast.eurekast.one.EurekastOneDiscoveryStrategy" enabled="true">
+        <properties>
+          <property name="namespace">hazelcast</property>
+        </properties>
       </discovery-strategy>
     </discovery-strategies>
   </network>

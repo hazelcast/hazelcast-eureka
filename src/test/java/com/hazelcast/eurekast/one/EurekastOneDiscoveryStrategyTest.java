@@ -27,31 +27,13 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class EurekastOneDiscoveryStrategyTest {
+public class EurekastOneDiscoveryStrategyTest extends AbstractEurekastOneDiscoveryStrategyTest{
 
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
-
-    @Mock
-    private EurekaClient eurekaClient;
-
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
-    private DynamicPropertyFactory dynamicPropertyFactory;
-
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
-    private ApplicationInfoManager applicationInfoManager;
-
-    private EurekastOneDiscoveryStrategy strategy;
-
-    private final String APPLICATION_NAME = "hazelcast-test";
-
-    @Before
-    public void setup() {
-        when(applicationInfoManager.getInfo().getAppName()).thenReturn(APPLICATION_NAME);
-        when(dynamicPropertyFactory.getStringProperty("eureka.name", APPLICATION_NAME).get())
-                .thenReturn(APPLICATION_NAME);
-
-        strategy = new EurekastOneDiscoveryStrategy(eurekaClient, dynamicPropertyFactory, applicationInfoManager);
+    @Override
+    protected void initializeStrategy() {
+        strategy = new EurekastOneDiscoveryStrategy(eurekaClient,
+                applicationInfoManager,
+                false);
     }
 
     @Test
@@ -141,17 +123,7 @@ public class EurekastOneDiscoveryStrategyTest {
         verify(applicationInfoManager).setInstanceStatus(InstanceInfo.InstanceStatus.UP);
     }
 
-    @Test
-    public void shouldNotRegisterWhenClientModeEnabled(){
-        when(eurekaClient.getApplication(APPLICATION_NAME))
-                .thenReturn(new Application());
-        reset(applicationInfoManager);
 
-        strategy.setClientMode(true);
-        strategy.start();
-
-        verifyZeroInteractions(applicationInfoManager);
-    }
 
     @Test
     public void shouldShutdownClientWhenDestroyCalled(){
@@ -159,4 +131,5 @@ public class EurekastOneDiscoveryStrategyTest {
         verify(applicationInfoManager).setInstanceStatus(InstanceInfo.InstanceStatus.DOWN);
         verify(eurekaClient).shutdown();
     }
+
 }

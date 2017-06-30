@@ -21,12 +21,13 @@ import com.hazelcast.config.properties.SimplePropertyDefinition;
 import com.hazelcast.core.TypeConverter;
 
 import static com.hazelcast.config.properties.PropertyTypeConverter.BOOLEAN;
+import static com.hazelcast.config.properties.PropertyTypeConverter.STRING;
 
 /**
  * <p>Configuration class of the Hazelcast Discovery Plugin for <a href="https://github.com/Netflix/eureka">Eureka 1</a>.</p>
  * <p>For possible configuration properties please refer to the public constants of this class.</p>
  */
-final class EurekastOneProperties {
+public final class EurekastOneProperties {
 
     /**
      * <p>Configuration System Environment Prefix: <tt>hazelcast.eurekastone.</tt></p>
@@ -37,15 +38,26 @@ final class EurekastOneProperties {
      * <pre>
      *     -Dhazelcast.eurekastone.self-registration=value
      * </pre>
+     * Example: {@link #NAMESPACE} will be:
+     * <pre>
+     *     -Dhazelcast.eurekastone.namespace=value
+     * </pre>
      */
-    static final String EUREKAST_ONE_SYSTEM_PREFIX = "hazelcast.eurekastone";
+    public static final String EUREKAST_ONE_SYSTEM_PREFIX = "hazelcast.eurekastone";
 
     /**
      * <p>Configuration key: <tt>self-registration</tt></p>
      * <p>Defines if the Discovery SPI plugin will register itself with the Eureka 1 service discovery.</p>
      * <p>The default value is: <tt>true</tt></p>
      */
-    static final PropertyDefinition SELF_REGISTRATION = property("self-registration", BOOLEAN);
+    public static final PropertyDefinition SELF_REGISTRATION = property("self-registration", BOOLEAN);
+
+    /**
+     * <p>Configuration key: <tt>namespace</tt></p>
+     * <p>Definition for providing different namespaces in order to not collide with other service registry clients in eureka-client.properties file.</p>
+     * <p>The default value is: <tt>hazelcast</tt></p>
+     */
+    public static final PropertyDefinition NAMESPACE = property("namespace", STRING);
 
     // Prevent instantiation
     private EurekastOneProperties() {
