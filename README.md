@@ -171,5 +171,4 @@ we recommend you use HVM when you run Hazelcast on EC2.
 
 ***RELATED INFORMATION***
 
-*You can download the white paper "Hazelcast on AWS: Best Practices for Deployment" from 
-<a href="http://hazelcast.com/resources/hazelcast-on-aws-best-practices-for-deployment/" target="_blank">Hazelcast.com</a>.*
+*You can download the white paper "Amazon EC2 Deployment Guide for Hazelcast IMDG" <a href="https://hazelcast.com/resources/amazon-ec2-deployment-guide/" target="_blank">here</a>.*
