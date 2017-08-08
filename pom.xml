@@ -44,6 +44,24 @@
         </license>
     </licenses>
 
+    <scm>
+        <connection>scm:git:git://github.com/hazelcast/hazelcast-eureka.git</connection>
+        <developerConnection>scm:git:git@github.com:hazelcast/hazelcast-eureka.git</developerConnection>
+        <url>https://github.com/hazelcast/hazelcast/</url>
+    </scm>
+    <developers>
+        <developer>
+            <id>oztalip</id>
+            <name>talip ozturk</name>
+            <email>talip@hazelcast.com</email>
+        </developer>
+        <developer>
+            <id>fuad</id>
+            <name>fuad malikov</name>
+            <email>fuad@hazelcast.com</email>
+        </developer>
+    </developers>
+
     <build>
         <plugins>
             <plugin>
@@ -356,6 +374,7 @@
                                     <value>http://download.oracle.com/javase/1.7.0/docs/api/</value>
                                 </property>
                             </javaApiLinks>
+		            <additionalparam>-Xdoclint:none</additionalparam>
                             <maxmemory>1024</maxmemory>
                         </configuration>
                         <executions>
