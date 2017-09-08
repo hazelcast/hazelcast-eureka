@@ -1,11 +1,21 @@
 # Table of Contents
-
+  
+  * Latest Release Version
   * [Discovering Members within EC2 VPC](#discovering-members-within-ec2-vpc)
   * [Debugging](#debugging)
   * [Hazelcast Performance on AWS](#hazelcast-performance-on-aws)
     * [Selecting EC2 Instance Type](#selecting-ec2-instance-type)
     * [Dealing with Network Latency](#dealing-with-network-latency)
     * [Selecting Virtualization](#selecting-virtualization)
+
+## Latest Release Version
+```$xml
+<dependency>
+  <groupId>com.hazelcast</groupId>
+  <artifactId>hazelcast-eureka-one</artifactId>
+  <version>1.0.0</version>
+</dependency>
+```
 
 ## Discovering Members within EC2 VPC
 
