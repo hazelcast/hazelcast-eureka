@@ -1,5 +1,6 @@
 package com.hazelcast.eureka.one;
 
+import com.hazelcast.eureka.one.EurekaOneDiscoveryStrategy.EurekaOneDiscoveryStrategyBuilder;
 import com.hazelcast.spi.discovery.DiscoveryNode;
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.discovery.shared.Application;
@@ -22,9 +23,9 @@ public class EurekaOneDiscoveryStrategyTest extends AbstractEurekaOneDiscoverySt
 
     @Override
     protected void initializeStrategy() {
-        strategy = new EurekaOneDiscoveryStrategy(eurekaClient,
-                applicationInfoManager,
-                false);
+        EurekaOneDiscoveryStrategyBuilder builder = new EurekaOneDiscoveryStrategyBuilder();
+        builder.setEurekaClient(eurekaClient).setApplicationInfoManager(applicationInfoManager).setClientMode(false);
+        strategy = builder.build();
     }
 
     @Test

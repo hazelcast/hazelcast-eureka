@@ -23,8 +23,12 @@ import com.hazelcast.config.DiscoveryStrategyConfig;
 import com.hazelcast.config.XmlConfigBuilder;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.test.HazelcastTestSupport;
+import com.netflix.appinfo.ApplicationInfoManager;
+import com.netflix.appinfo.EurekaInstanceConfig;
 import com.netflix.appinfo.InstanceInfo;
+import com.netflix.appinfo.InstanceInfo.InstanceStatus;
 import com.netflix.config.ConfigurationManager;
+import com.netflix.discovery.EurekaClient;
 import com.netflix.discovery.junit.resource.SimpleEurekaHttpServerResource;
 import com.netflix.discovery.shared.Application;
 import com.netflix.discovery.shared.Applications;
@@ -49,6 +53,7 @@ import static junit.framework.TestCase.assertNotNull;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 
 public class HazelcastClientTestCase extends HazelcastTestSupport {
@@ -71,6 +76,8 @@ public class HazelcastClientTestCase extends HazelcastTestSupport {
         reset(requestHandler);
 
         configure(EurekaOneDiscoveryStrategy.DEFAULT_NAMESPACE, APP_NAME);
+        
+        EurekaOneDiscoveryStrategyFactory.setEurekaClient(null);
     }
 
     private void configure(String namespace, String appName){
@@ -213,6 +220,32 @@ public class HazelcastClientTestCase extends HazelcastTestSupport {
         String actual = captor.getValue().getAppName().toLowerCase();
         assertThat(actual, is(appName));
 
+    }
+    
+    @Test
+    public void testInstanceRegistrationUsingProvidedEurekaClient() {
+        EurekaClient eurekaClient = mock(EurekaClient.class);
+        ApplicationInfoManager applicationInfoManager = mock(ApplicationInfoManager.class);
+        EurekaInstanceConfig eurekaInstanceConfig = mock(EurekaInstanceConfig.class);
+
+        when(eurekaClient.getApplicationInfoManager()).thenReturn(applicationInfoManager);
+        when(eurekaClient.getApplication(anyString())).thenReturn(new Application(APP_NAME));
+
+        when(applicationInfoManager.getEurekaInstanceConfig()).thenReturn(eurekaInstanceConfig);
+        when(eurekaInstanceConfig.getAppname()).thenReturn(APP_NAME);
+
+        // use provided EurekaClient
+        EurekaOneDiscoveryStrategyFactory.setEurekaClient(eurekaClient);
+
+        HazelcastInstance hz1 = factory.newHazelcastInstance();
+        HazelcastInstance hz2 = factory.newHazelcastInstance();
+        
+        verify(eurekaClient, times(2)).getApplicationInfoManager();
+        verify(eurekaClient, times(2)).getApplication(APP_NAME);
+        verify(applicationInfoManager, times(2)).setInstanceStatus(InstanceStatus.UP);
+
+        assertClusterSizeEventually(2, hz1);
+        assertClusterSizeEventually(2, hz2);
     }
 
     private EurekaHttpResponse<Applications> generateMockResponse(List<InstanceInfo> infoList) {

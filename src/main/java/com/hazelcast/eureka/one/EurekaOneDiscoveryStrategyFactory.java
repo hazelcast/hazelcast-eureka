@@ -18,6 +18,7 @@ package com.hazelcast.eureka.one;
 
 import com.google.common.collect.Lists;
 import com.hazelcast.config.properties.PropertyDefinition;
+import com.hazelcast.eureka.one.EurekaOneDiscoveryStrategy.EurekaOneDiscoveryStrategyBuilder;
 import com.hazelcast.logging.ILogger;
 import com.hazelcast.spi.discovery.DiscoveryNode;
 import com.hazelcast.spi.discovery.DiscoveryStrategy;
@@ -46,11 +47,10 @@ public class EurekaOneDiscoveryStrategyFactory
 
     public DiscoveryStrategy newDiscoveryStrategy(DiscoveryNode discoveryNode, ILogger logger,
                                                   Map<String, Comparable> properties) {
-        if (eurekaClient == null) {
-            return new EurekaOneDiscoveryStrategy(discoveryNode, logger, properties);
-        } else {
-            return new EurekaOneDiscoveryStrategy(eurekaClient, discoveryNode, logger, properties);
-        }
+        EurekaOneDiscoveryStrategyBuilder builder = new EurekaOneDiscoveryStrategyBuilder();
+        builder.setDiscoveryNode(discoveryNode).setILogger(logger).setProperties(properties)
+                .setEurekaClient(eurekaClient);
+        return builder.build();
     }
 
     public Collection<PropertyDefinition> getConfigurationProperties() {
