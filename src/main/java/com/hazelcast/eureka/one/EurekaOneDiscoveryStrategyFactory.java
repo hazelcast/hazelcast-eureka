@@ -57,6 +57,12 @@ public class EurekaOneDiscoveryStrategyFactory
         return PROPERTY_DEFINITIONS;
     }
 
+    /**
+     * Allows to use already configured {@link EurekaClient} instead of creating new one.
+     * 
+     * @param eurekaClient
+     *            {@link EurekaClient} instance
+     */
     public static void setEurekaClient(EurekaClient eurekaClient) {
         EurekaOneDiscoveryStrategyFactory.eurekaClient = eurekaClient;
     }
