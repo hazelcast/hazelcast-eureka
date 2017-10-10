@@ -96,14 +96,15 @@ class EurekaOneDiscoveryStrategy
         this.eurekaClient = new DiscoveryClient(applicationInfoManager, new EurekaOneAwareConfig(this.namespace));
     }
 
-    EurekaOneDiscoveryStrategy(EurekaClient eurekaClient, DiscoveryNode localNode, ILogger logger, Map<String, Comparable> properties) {
+    EurekaOneDiscoveryStrategy(EurekaClient eurekaClient, DiscoveryNode localNode, ILogger logger, Map<String,
+            Comparable> properties) {
         super(logger, properties);
-    
+
         this.selfRegistration = getOrDefault(EUREKA_ONE_SYSTEM_PREFIX, SELF_REGISTRATION, true);
         this.namespace = getOrDefault(EUREKA_ONE_SYSTEM_PREFIX, NAMESPACE, "hazelcast");
 
         this.clientMode = localNode == null;
-        
+
         this.applicationInfoManager = eurekaClient.getApplicationInfoManager();
         this.eurekaClient = eurekaClient;
     }

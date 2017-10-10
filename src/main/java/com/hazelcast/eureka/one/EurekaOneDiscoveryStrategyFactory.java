@@ -37,7 +37,7 @@ public class EurekaOneDiscoveryStrategyFactory
     private static final Collection<PropertyDefinition> PROPERTY_DEFINITIONS = Lists.newArrayList(
             EurekaOneProperties.SELF_REGISTRATION,
             EurekaOneProperties.NAMESPACE);
-    
+
     private static EurekaClient eurekaClient;
 
     public Class<? extends DiscoveryStrategy> getDiscoveryStrategyType() {
@@ -59,9 +59,8 @@ public class EurekaOneDiscoveryStrategyFactory
 
     /**
      * Allows to use already configured {@link EurekaClient} instead of creating new one.
-     * 
-     * @param eurekaClient
-     *            {@link EurekaClient} instance
+     *
+     * @param eurekaClient {@link EurekaClient} instance
      */
     public static void setEurekaClient(EurekaClient eurekaClient) {
         EurekaOneDiscoveryStrategyFactory.eurekaClient = eurekaClient;
