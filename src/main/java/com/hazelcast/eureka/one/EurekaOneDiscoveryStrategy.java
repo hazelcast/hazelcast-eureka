@@ -61,7 +61,7 @@ class EurekaOneDiscoveryStrategy
         private DiscoveryNode discoveryNode;
         private ILogger logger = new NoLogFactory().getLogger(EurekaOneDiscoveryStrategy.class.getName());
         private Map<String, Comparable> properties = Collections.<String, Comparable>emptyMap();
-        private boolean clientMode;
+        private Boolean clientMode;
 
         public EurekaOneDiscoveryStrategyBuilder setEurekaClient(final EurekaClient eurekaClient) {
             this.eurekaClient = eurekaClient;
@@ -79,7 +79,6 @@ class EurekaOneDiscoveryStrategy
 
         public EurekaOneDiscoveryStrategyBuilder setDiscoveryNode(final DiscoveryNode discoveryNode) {
             this.discoveryNode = discoveryNode;
-            this.clientMode = discoveryNode == null;
             return this;
         }
 
@@ -120,14 +119,16 @@ class EurekaOneDiscoveryStrategy
     private EurekaOneDiscoveryStrategy(final EurekaOneDiscoveryStrategyBuilder builder) {
         super(builder.logger, builder.properties);
         
-        this.selfRegistration = getOrDefault(EUREKA_ONE_SYSTEM_PREFIX, SELF_REGISTRATION, true);
         this.namespace = getOrDefault(EUREKA_ONE_SYSTEM_PREFIX, NAMESPACE, "hazelcast");
-        this.clientMode = builder.clientMode;
         
         if (builder.eurekaClient == null) {
+            this.clientMode = builder.discoveryNode == null;
+            this.selfRegistration = getOrDefault(EUREKA_ONE_SYSTEM_PREFIX, SELF_REGISTRATION, true);
             this.applicationInfoManager = initializeApplicationInfoManager(builder.discoveryNode);
             this.eurekaClient = new DiscoveryClient(applicationInfoManager, new EurekaOneAwareConfig(this.namespace));
         } else {
+            this.clientMode = builder.clientMode != null ? builder.clientMode : builder.discoveryNode == null;
+            this.selfRegistration = builder.clientMode != null ? !builder.clientMode : false;
             this.applicationInfoManager = builder.applicationInfoManager;
             this.eurekaClient = builder.eurekaClient;
         }
