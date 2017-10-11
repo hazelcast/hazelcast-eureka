@@ -123,7 +123,11 @@ If your application provides already configured `EurekaClient` instance e.g. if 
 EurekaClient eurekaClient = ...
 EurekaOneDiscoveryStrategyFactory.setEurekaClient(eurekaClient);
 ```
+
+When using reused client as above, discovery implementation will **not** send Eureka Server any status changes regarding 
+ application state.
  
+
 ## Debugging
 
 When needed, Hazelcast can log the events for the instances that exist in a region. To see what has happened or to 
