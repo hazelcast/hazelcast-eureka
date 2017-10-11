@@ -24,11 +24,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URL;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -60,86 +56,102 @@ class EurekaOneDiscoveryStrategy
         private ApplicationInfoManager applicationInfoManager;
         private DiscoveryNode discoveryNode;
         private ILogger logger = new NoLogFactory().getLogger(EurekaOneDiscoveryStrategy.class.getName());
-        private Map<String, Comparable> properties = Collections.<String, Comparable>emptyMap();
-        private Boolean clientMode;
+        private Map<String, Comparable> properties = Collections.emptyMap();
+        private StatusChangeStrategy changeStrategy = null;
 
-        public EurekaOneDiscoveryStrategyBuilder setEurekaClient(final EurekaClient eurekaClient) {
+        EurekaOneDiscoveryStrategyBuilder setEurekaClient(final EurekaClient eurekaClient) {
             this.eurekaClient = eurekaClient;
             if (eurekaClient != null) {
                 this.applicationInfoManager = eurekaClient.getApplicationInfoManager();
+                this.changeStrategy = new NoopUpdater();
             }
             return this;
         }
-        
-        public EurekaOneDiscoveryStrategyBuilder setApplicationInfoManager(
+
+        EurekaOneDiscoveryStrategyBuilder setApplicationInfoManager(
                 final ApplicationInfoManager applicationInfoManager) {
             this.applicationInfoManager = applicationInfoManager;
             return this;
         }
 
-        public EurekaOneDiscoveryStrategyBuilder setDiscoveryNode(final DiscoveryNode discoveryNode) {
+        EurekaOneDiscoveryStrategyBuilder setDiscoveryNode(final DiscoveryNode discoveryNode) {
             this.discoveryNode = discoveryNode;
             return this;
         }
 
-        public EurekaOneDiscoveryStrategyBuilder setILogger(final ILogger logger) {
+        EurekaOneDiscoveryStrategyBuilder setILogger(final ILogger logger) {
             this.logger = logger;
             return this;
         }
 
-        public EurekaOneDiscoveryStrategyBuilder setProperties(final Map<String, Comparable> properties) {
+        EurekaOneDiscoveryStrategyBuilder setProperties(final Map<String, Comparable> properties) {
             this.properties = properties;
             return this;
         }
-        
+
         @VisibleForTesting
-        public EurekaOneDiscoveryStrategyBuilder setClientMode(final boolean clientMode) {
-            this.clientMode = clientMode;
+        EurekaOneDiscoveryStrategyBuilder setStatusChangeStrategy(StatusChangeStrategy statusChangeStrategy) {
+            this.changeStrategy = statusChangeStrategy;
             return this;
         }
 
-        public EurekaOneDiscoveryStrategy build() {
+        EurekaOneDiscoveryStrategy build() {
+            if (null == changeStrategy) {
+                changeStrategy = new DefaultUpdater();
+            }
+
+            if (null == discoveryNode) {
+                changeStrategy = new NoopUpdater();
+            }
+
             return new EurekaOneDiscoveryStrategy(this);
         }
     }
-    
-    @VisibleForTesting static final String DEFAULT_NAMESPACE = "hazelcast";
-    @VisibleForTesting static final int NUM_RETRIES = 5;
+
+    @VisibleForTesting
+    static final String DEFAULT_NAMESPACE = "hazelcast";
+    @VisibleForTesting
+    static final int NUM_RETRIES = 5;
     private static final int VERIFICATION_WAIT_TIMEOUT = 5;
     private static final int DISCOVERY_RETRY_TIMEOUT = 1;
 
     private final EurekaClient eurekaClient;
     private final ApplicationInfoManager applicationInfoManager;
 
-    private final boolean selfRegistration;
-    private final boolean clientMode;
-
     private final String namespace;
+    private StatusChangeStrategy statusChangeStrategy;
 
     private EurekaOneDiscoveryStrategy(final EurekaOneDiscoveryStrategyBuilder builder) {
         super(builder.logger, builder.properties);
-        
+
         this.namespace = getOrDefault(EUREKA_ONE_SYSTEM_PREFIX, NAMESPACE, "hazelcast");
-        
-        if (builder.eurekaClient == null) {
-            this.clientMode = builder.discoveryNode == null;
-            this.selfRegistration = getOrDefault(EUREKA_ONE_SYSTEM_PREFIX, SELF_REGISTRATION, true);
+        boolean selfRegistration = getOrDefault(EUREKA_ONE_SYSTEM_PREFIX, SELF_REGISTRATION, true);
+        // override registration if requested
+        if (!selfRegistration){
+            statusChangeStrategy = new NoopUpdater();
+        }else {
+            this.statusChangeStrategy = builder.changeStrategy;
+        }
+
+        if (builder.applicationInfoManager == null) {
             this.applicationInfoManager = initializeApplicationInfoManager(builder.discoveryNode);
+        } else {
+            this.applicationInfoManager = builder.applicationInfoManager;
+        }
+
+        if (builder.eurekaClient == null) {
             this.eurekaClient = new DiscoveryClient(applicationInfoManager, new EurekaOneAwareConfig(this.namespace));
         } else {
-            this.clientMode = builder.clientMode != null ? builder.clientMode : builder.discoveryNode == null;
-            this.selfRegistration = builder.clientMode != null ? !builder.clientMode : false;
-            this.applicationInfoManager = builder.applicationInfoManager;
             this.eurekaClient = builder.eurekaClient;
         }
     }
-    
+
     private ApplicationInfoManager initializeApplicationInfoManager(DiscoveryNode localNode) {
         EurekaInstanceConfig instanceConfig = buildInstanceConfig(localNode);
 
         InstanceInfo instanceInfo = new EurekaConfigBasedInstanceInfoProvider(instanceConfig).get();
         ApplicationInfoManager manager = new ApplicationInfoManager(instanceConfig, instanceInfo);
-        eurekaStatusChange(manager, InstanceInfo.InstanceStatus.STARTING);
+        statusChangeStrategy.update(manager, InstanceInfo.InstanceStatus.STARTING);
 
         return manager;
     }
@@ -211,13 +223,13 @@ class EurekaOneDiscoveryStrategy
 
     @Override
     public void start() {
-        eurekaStatusChange(InstanceInfo.InstanceStatus.UP);
+        statusChangeStrategy.update(applicationInfoManager, InstanceInfo.InstanceStatus.UP);
         verifyEurekaRegistration();
     }
 
     @Override
     public void destroy() {
-        eurekaStatusChange(InstanceInfo.InstanceStatus.DOWN);
+        statusChangeStrategy.update(applicationInfoManager, InstanceInfo.InstanceStatus.DOWN);
         if (null != eurekaClient) {
             eurekaClient.shutdown();
         }
@@ -231,17 +243,6 @@ class EurekaOneDiscoveryStrategy
             getLogger().warning("InstanceInfo '" + instance + "' could not be resolved");
         }
         return null;
-    }
-
-    private void eurekaStatusChange(InstanceInfo.InstanceStatus status) {
-        eurekaStatusChange(applicationInfoManager, status);
-    }
-
-    private void eurekaStatusChange(ApplicationInfoManager applicationInfoManager, InstanceInfo.InstanceStatus status) {
-        if (clientMode || !selfRegistration) {
-            return;
-        }
-        applicationInfoManager.setInstanceStatus(status);
     }
 
     @VisibleForTesting
@@ -277,7 +278,7 @@ class EurekaOneDiscoveryStrategy
 
         @Override
         public boolean shouldRegisterWithEureka() {
-            return !clientMode && selfRegistration;
+            return statusChangeStrategy.shouldRegister();
         }
     }
 
@@ -291,7 +292,7 @@ class EurekaOneDiscoveryStrategy
         private DelegatingInstanceConfig(EurekaInstanceConfig instanceConfig, DiscoveryNode localNode) {
             this.instanceConfig = instanceConfig;
             this.localNode = localNode;
-            this.uuid =  UuidUtil.newSecureUuidString();
+            this.uuid = UuidUtil.newSecureUuidString();
         }
 
         public String getInstanceId() {

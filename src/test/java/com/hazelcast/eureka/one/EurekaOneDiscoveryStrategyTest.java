@@ -8,6 +8,7 @@ import com.netflix.discovery.util.InstanceInfoGenerator;
 import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.List;
@@ -21,10 +22,16 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class EurekaOneDiscoveryStrategyTest extends AbstractEurekaOneDiscoveryStrategyTest {
 
+    @Mock
+    private DiscoveryNode node;
+
     @Override
     protected void initializeStrategy() {
         EurekaOneDiscoveryStrategyBuilder builder = new EurekaOneDiscoveryStrategyBuilder();
-        builder.setEurekaClient(eurekaClient).setApplicationInfoManager(applicationInfoManager).setClientMode(false);
+        builder.setEurekaClient(eurekaClient)
+                .setApplicationInfoManager(applicationInfoManager)
+                .setDiscoveryNode(node)
+                .setStatusChangeStrategy(new DefaultUpdater());
         strategy = builder.build();
     }
 

@@ -31,9 +31,10 @@ public class EurekaOneDiscoveryStrategyClientTest extends AbstractEurekaOneDisco
 
     @Override
     protected void initializeStrategy() {
-        EurekaOneDiscoveryStrategyBuilder builder = new EurekaOneDiscoveryStrategyBuilder();
-        builder.setEurekaClient(eurekaClient).setApplicationInfoManager(applicationInfoManager).setClientMode(true);
-        strategy = builder.build();
+        strategy = new EurekaOneDiscoveryStrategyBuilder()
+                .setEurekaClient(eurekaClient)
+                .setApplicationInfoManager(applicationInfoManager)
+                .build();
     }
 
     @Test
