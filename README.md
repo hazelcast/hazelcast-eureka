@@ -125,8 +125,8 @@ EurekaOneDiscoveryStrategyFactory.setEurekaClient(eurekaClient);
 ```
 
 When using reused client as above, discovery implementation will **not** send Eureka Server any status changes regarding 
- application state.
- 
+ application state. Also, if you need to inject `Eureka client` externally, you have to configure discovery programmatically
+ as shown above code snippet.
 
 ## Debugging
 
