@@ -24,7 +24,11 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URL;
 import java.net.UnknownHostException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -48,7 +52,7 @@ import com.netflix.discovery.DiscoveryClient;
 import com.netflix.discovery.EurekaClient;
 import com.netflix.discovery.shared.Application;
 
-class EurekaOneDiscoveryStrategy
+final class EurekaOneDiscoveryStrategy
         extends AbstractDiscoveryStrategy {
 
     static final class EurekaOneDiscoveryStrategyBuilder {
@@ -57,7 +61,7 @@ class EurekaOneDiscoveryStrategy
         private DiscoveryNode discoveryNode;
         private ILogger logger = new NoLogFactory().getLogger(EurekaOneDiscoveryStrategy.class.getName());
         private Map<String, Comparable> properties = Collections.emptyMap();
-        private StatusChangeStrategy changeStrategy = null;
+        private StatusChangeStrategy changeStrategy;
 
         EurekaOneDiscoveryStrategyBuilder setEurekaClient(final EurekaClient eurekaClient) {
             this.eurekaClient = eurekaClient;
@@ -127,9 +131,9 @@ class EurekaOneDiscoveryStrategy
         this.namespace = getOrDefault(EUREKA_ONE_SYSTEM_PREFIX, NAMESPACE, "hazelcast");
         boolean selfRegistration = getOrDefault(EUREKA_ONE_SYSTEM_PREFIX, SELF_REGISTRATION, true);
         // override registration if requested
-        if (!selfRegistration){
+        if (!selfRegistration) {
             statusChangeStrategy = new NoopUpdater();
-        }else {
+        } else {
             this.statusChangeStrategy = builder.changeStrategy;
         }
 
