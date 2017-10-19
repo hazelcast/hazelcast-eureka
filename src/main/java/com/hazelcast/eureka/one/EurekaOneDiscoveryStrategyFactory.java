@@ -18,10 +18,12 @@ package com.hazelcast.eureka.one;
 
 import com.google.common.collect.Lists;
 import com.hazelcast.config.properties.PropertyDefinition;
+import com.hazelcast.eureka.one.EurekaOneDiscoveryStrategy.EurekaOneDiscoveryStrategyBuilder;
 import com.hazelcast.logging.ILogger;
 import com.hazelcast.spi.discovery.DiscoveryNode;
 import com.hazelcast.spi.discovery.DiscoveryStrategy;
 import com.hazelcast.spi.discovery.DiscoveryStrategyFactory;
+import com.netflix.discovery.EurekaClient;
 
 import java.util.Collection;
 import java.util.Map;
@@ -37,17 +39,30 @@ public class EurekaOneDiscoveryStrategyFactory
             EurekaOneProperties.SELF_REGISTRATION,
             EurekaOneProperties.NAMESPACE);
 
+    private static EurekaClient eurekaClient;
+
     public Class<? extends DiscoveryStrategy> getDiscoveryStrategyType() {
         return EurekaOneDiscoveryStrategy.class;
     }
 
     public DiscoveryStrategy newDiscoveryStrategy(DiscoveryNode discoveryNode, ILogger logger,
                                                   Map<String, Comparable> properties) {
-
-        return new EurekaOneDiscoveryStrategy(discoveryNode, logger, properties);
+        EurekaOneDiscoveryStrategyBuilder builder = new EurekaOneDiscoveryStrategyBuilder();
+        builder.setDiscoveryNode(discoveryNode).setILogger(logger).setProperties(properties)
+                .setEurekaClient(eurekaClient);
+        return builder.build();
     }
 
     public Collection<PropertyDefinition> getConfigurationProperties() {
         return PROPERTY_DEFINITIONS;
+    }
+
+    /**
+     * Allows to use already configured {@link EurekaClient} instead of creating new one.
+     *
+     * @param eurekaClient {@link EurekaClient} instance
+     */
+    public static void setEurekaClient(EurekaClient eurekaClient) {
+        EurekaOneDiscoveryStrategyFactory.eurekaClient = eurekaClient;
     }
 }

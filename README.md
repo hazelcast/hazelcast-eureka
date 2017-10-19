@@ -116,6 +116,18 @@ which is `hazelcast`. Therefore, `self-registration` property is overridden and 
 
 > `IMPORTANT`: `hazelcast.name` property is crucial for clients to discover cluster members.
 
+#### Reusing existing Eureka Client instance
+If your application provides already configured `EurekaClient` instance e.g. if you are using Spring Cloud, you can reuse your existing client:
+
+```
+EurekaClient eurekaClient = ...
+EurekaOneDiscoveryStrategyFactory.setEurekaClient(eurekaClient);
+```
+
+When using reused client as above, discovery implementation will **not** send Eureka Server any status changes regarding 
+ application state. Also, if you need to inject `Eureka client` externally, you have to configure discovery programmatically
+ as shown above code snippet.
+
 ## Debugging
 
 When needed, Hazelcast can log the events for the instances that exist in a region. To see what has happened or to 
