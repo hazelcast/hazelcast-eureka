@@ -52,7 +52,7 @@ The following is an example declarative configuration.
             <tcp-ip enabled="false"/>
             <aws enabled="false"/>
             <discovery-strategies>
-                <discovery-strategy class="EurekaOneDiscoveryStrategy" enabled="true">
+                <discovery-strategy class="com.hazelcast.eureka.one.EurekaOneDiscoveryStrategy" enabled="true">
                     <properties>
                        <property name="self-registration">true</property>
                        <property name="namespace">hazelcast</property>
@@ -93,7 +93,7 @@ The following is an example declarative configuration.
 <network>
     ...
     <discovery-strategies>
-        <discovery-strategy class="EurekaOneDiscoveryStrategy" enabled="true">
+        <discovery-strategy class="com.hazelcast.eureka.one.EurekaOneDiscoveryStrategy" enabled="true">
             <properties>
                 <property name="namespace">hazelcast</property>
             </properties>
@@ -174,7 +174,7 @@ than necessary. The following notes are potential workarounds.
 - Create a cluster only within a region. It is not recommended that you deploy a single cluster that spans across 
 multiple regions.
 - If a Hazelcast application is hosted on Amazon EC2 instances in multiple EC2 regions, you can reduce the latency by 
-serving the end users` requests from the EC2 region which has the lowest network latency. Changes in network connectivity 
+serving the end users' requests from the EC2 region which has the lowest network latency. Changes in network connectivity 
 and routing result in changes in the latency between hosts on the Internet. Amazon has a web service (Route 53) that 
 lets the cloud architects use DNS to route end-user requests to the EC2 region that gives the fastest response. This 
 latency-based routing is based on latency measurements performed over a period of time. Please have a look at 
