@@ -65,8 +65,8 @@ The following is an example declarative configuration.
 ```
 * `self-registration`: Defines if the Discovery SPI plugin will register itself with the Eureka 1 service discovery. 
 It is optional. Default value is `true`.
-* `namespace`: Definition for providing different namespaces in order to not to collide with other service registry clients 
-in eureka-client.properties file. It is optional. Default value is `hazelcast`.
+* `namespace`: Definition for providing different namespaces in order not to collide with other service registry
+  clients in eureka-client.properties file. It is optional. Default value is `hazelcast`.
 
 Below you can also find an example of Eureka client properties. 
 
@@ -78,8 +78,41 @@ hazelcast.name=hazelcast-test
 hazelcast.serviceUrl.default=http://<your-eureka-server-url>
 ```
 
-> `IMPORTANT`: `hazelcast.name` property is crucial for cluster members to discover each other. Please give 
+> **IMPORTANT**: `hazelcast.name` property is crucial for cluster members to discover each other. Please give
 identical names in regarding `eureka-client.properties` on EC2 hosts for building cluster of your choice properly.
+
+#### Configuring Eureka Discovery without a properties file
+
+In some environments adding the `eureka-client.properties` file to the classpath is not feasible.
+To support this use case, it is possible to specify the Eureka client properties in the
+Hazelcast configuration: Set the `use-classpath-eureka-client-props` property to `false`,
+then add the Eureka client properties _without prepending the namespace_, as they will be applied
+to the namespace specified with the `namespace` property.
+
+**NOTE:** If `use-classpath-eureka-client-props` is `true` (its default value), all Eureka client properties
+in the Hazelcast configuration will be ignored.
+
+The following is an example declarative configuration, equivalent to the example given above.
+
+```xml
+<network>
+    ...
+    <discovery-strategies>
+        <discovery-strategy class="com.hazelcast.eureka.one.EurekaOneDiscoveryStrategy" enabled="true">
+            <properties>
+                <property name="self-registration">true</property>
+                <property name="namespace">hazelcast</property>
+                <property name="use-classpath-eureka-client-props">false</property>
+                <property name="environment">prod</property>
+                <property name="shouldUseDns">false</property>
+                <property name="datacenter">cloud</property>
+                <property name="name">hazelcast-test</property>
+                <property name="serviceUrl.default">http://your-eureka-server-url</property>
+            </properties>
+        </discovery-strategy>
+    </discovery-strategies>
+</network>
+```
 
 ### Configuring Eureka Discovery for Hazelcast Client
 
@@ -111,10 +144,42 @@ hazelcast.name=hazelcast-test
 hazelcast.serviceUrl.default=http://<your-eureka-server-url>/eureka/v2/
 ```
 
-> `NOTE:` Hazelcast clients do not register themselves to Eureka server with given `namespace` or default namespace, 
+> **NOTE:** Hazelcast clients do not register themselves to Eureka server with given `namespace` or default namespace,
 which is `hazelcast`. Therefore, `self-registration` property is overridden and it has no effect.
 
-> `IMPORTANT`: `hazelcast.name` property is crucial for clients to discover cluster members.
+> **IMPORTANT:** `hazelcast.name` property is crucial for clients to discover cluster members.
+
+#### Configuring Eureka Discovery for Hazelcast Client without a properties file
+
+In some environments adding the `eureka-client.properties` file to the Hazelcast Client classpath is not feasible.
+To support this use case, it is possible to specify the Eureka client properties in the
+Hazelcast Client configuration: Set the `use-classpath-eureka-client-props` property to `false`,
+then add the Eureka client properties _without prepending the namespace_, as they will be applied
+to the namespace specified with the `namespace` property.
+
+**NOTE:** If `use-classpath-eureka-client-props` is `true` (its default value), all Eureka client properties
+in the Hazelcast Client configuration will be ignored.
+
+The following is an example declarative configuration, equivalent to the example given above.
+
+```xml
+<network>
+    ...
+    <discovery-strategies>
+        <discovery-strategy class="com.hazelcast.eureka.one.EurekaOneDiscoveryStrategy" enabled="true">
+            <properties>
+                <property name="namespace">hazelcast</property>
+                <property name="use-classpath-eureka-client-props">false</property>
+                <property name="environment">prod</property>
+                <property name="shouldUseDns">false</property>
+                <property name="datacenter">cloud</property>
+                <property name="name">hazelcast-test</property>
+                <property name="serviceUrl.default">http://your-eureka-server-url/eureka/v2/</property>
+            </properties>
+        </discovery-strategy>
+    </discovery-strategies>
+</network>
+```
 
 #### Reusing existing Eureka Client instance
 If your application provides already configured `EurekaClient` instance e.g. if you are using Spring Cloud, you can reuse your existing client:
@@ -124,9 +189,9 @@ EurekaClient eurekaClient = ...
 EurekaOneDiscoveryStrategyFactory.setEurekaClient(eurekaClient);
 ```
 
-When using reused client as above, discovery implementation will **not** send Eureka Server any status changes regarding 
- application state. Also, if you need to inject `Eureka client` externally, you have to configure discovery programmatically
- as shown above code snippet.
+When using reused client as above, discovery implementation will **not** send Eureka Server any status changes regarding
+application state. Also, if you need to inject `Eureka client` externally, you have to configure discovery
+programmatically as shown above code snippet.
 
 ## Debugging
 

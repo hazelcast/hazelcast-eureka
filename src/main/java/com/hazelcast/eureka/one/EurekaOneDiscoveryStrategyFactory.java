@@ -35,9 +35,12 @@ import java.util.Map;
 public class EurekaOneDiscoveryStrategyFactory
         implements DiscoveryStrategyFactory {
 
-    private static final Collection<PropertyDefinition> PROPERTY_DEFINITIONS = Lists.newArrayList(
-            EurekaOneProperties.SELF_REGISTRATION,
-            EurekaOneProperties.NAMESPACE);
+    static final Collection<PropertyDefinition> PROPERTY_DEFINITIONS = Lists.newArrayList();
+
+    static {
+        PROPERTY_DEFINITIONS.addAll(EurekaOneProperties.HZ_PROPERTY_DEFINITIONS);
+        PROPERTY_DEFINITIONS.addAll(EurekaOneProperties.EUREKA_CLIENT_PROPERTY_DEFINITIONS);
+    }
 
     private static EurekaClient eurekaClient;
 
