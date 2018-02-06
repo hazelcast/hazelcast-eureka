@@ -20,4 +20,10 @@
     <!-- Exclude Clover instrumented sources -->
     <suppress checks="" files="/src-instrumented/"/>
 
+    <!-- Exclude some checks for Eureka code -->
+    <suppress checks="MethodCount" files="com/hazelcast/eureka/one/PropertyBasedEurekaClientConfig.java" />
+    <suppress checks="MagicNumber" files="com/hazelcast/eureka/one/PropertyBasedEurekaClientConfig.java" />
+    <suppress checks="AvoidStarImport" files="com/hazelcast/eureka/one/PropertyBasedEurekaClientConfig.java" />
+    <suppress checks="AvoidStarImport" files="com/hazelcast/eureka/one/EurekaOneProperties.java" />
+
 </suppressions>
