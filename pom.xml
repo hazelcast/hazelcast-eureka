@@ -16,7 +16,7 @@
 
         <jdk.version>1.6</jdk.version>
         <hazelcast.version>3.9.3</hazelcast.version>
-        <eureka.client.version>1.7.2</eureka.client.version>
+        <eureka.client.version>1.8.6</eureka.client.version>
         <archaius.core>0.7.5</archaius.core>
 
         <junit.version>4.12</junit.version>
