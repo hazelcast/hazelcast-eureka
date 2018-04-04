@@ -234,7 +234,7 @@ final class EurekaOneDiscoveryStrategy
             }
         }
         if (application != null) {
-            List<InstanceInfo> instances = application.getInstances();
+            List<InstanceInfo> instances = application.getInstancesAsIsFromEureka();
             for (InstanceInfo instance : instances) {
                 // Only recognize up and running instances
                 if (instance.getStatus() != InstanceInfo.InstanceStatus.UP) {
@@ -247,7 +247,18 @@ final class EurekaOneDiscoveryStrategy
                 }
 
                 int port = instance.getPort();
+                @SuppressWarnings({"unchecked", "rawtypes"})
                 Map<String, Object> metadata = (Map) instance.getMetadata();
+                if (metadata.containsKey(EurekaHazelcastMetadata.HAZELCAST_PORT)) {
+                    port = Integer.parseInt(metadata.get(EurekaHazelcastMetadata.HAZELCAST_PORT).toString());
+                }
+                if (metadata.containsKey(EurekaHazelcastMetadata.HAZELCAST_HOST)) {
+                    try {
+                        address = InetAddress.getByName(metadata.get(EurekaHazelcastMetadata.HAZELCAST_HOST).toString());
+                    } catch (UnknownHostException e) {
+                        getLogger().warning("Instance address '" + instance + "' could not be resolved", e);
+                    }
+                }
                 nodes.add(new SimpleDiscoveryNode(new Address(address, port), metadata));
             }
         }
