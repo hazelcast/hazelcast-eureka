@@ -71,7 +71,6 @@ It is optional. Default value is `true`.
 Below you can also find an example of Eureka client properties. 
 
 ```$properties
-hazelcast.environment=prod
 hazelcast.shouldUseDns=false
 hazelcast.datacenter=cloud
 hazelcast.name=hazelcast-test
@@ -103,7 +102,6 @@ The following is an example declarative configuration, equivalent to the example
                 <property name="self-registration">true</property>
                 <property name="namespace">hazelcast</property>
                 <property name="use-classpath-eureka-client-props">false</property>
-                <property name="environment">prod</property>
                 <property name="shouldUseDns">false</property>
                 <property name="datacenter">cloud</property>
                 <property name="name">hazelcast-test</property>
@@ -137,7 +135,6 @@ The following is an example declarative configuration.
 
 Below you can also find an example of Eureka client properties.
 ```$properties
-hazelcast.environment=prod
 hazelcast.shouldUseDns=false
 hazelcast.datacenter=cloud
 hazelcast.name=hazelcast-test
@@ -170,7 +167,6 @@ The following is an example declarative configuration, equivalent to the example
             <properties>
                 <property name="namespace">hazelcast</property>
                 <property name="use-classpath-eureka-client-props">false</property>
-                <property name="environment">prod</property>
                 <property name="shouldUseDns">false</property>
                 <property name="datacenter">cloud</property>
                 <property name="name">hazelcast-test</property>
