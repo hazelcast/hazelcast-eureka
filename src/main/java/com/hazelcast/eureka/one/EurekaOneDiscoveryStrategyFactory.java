@@ -16,6 +16,9 @@
 
 package com.hazelcast.eureka.one;
 
+import java.util.Collection;
+import java.util.Map;
+
 import com.google.common.collect.Lists;
 import com.hazelcast.config.properties.PropertyDefinition;
 import com.hazelcast.eureka.one.EurekaOneDiscoveryStrategy.EurekaOneDiscoveryStrategyBuilder;
@@ -24,9 +27,6 @@ import com.hazelcast.spi.discovery.DiscoveryNode;
 import com.hazelcast.spi.discovery.DiscoveryStrategy;
 import com.hazelcast.spi.discovery.DiscoveryStrategyFactory;
 import com.netflix.discovery.EurekaClient;
-
-import java.util.Collection;
-import java.util.Map;
 
 /**
  * <p>Configuration class of the Hazelcast Discovery Plugin for Eureka.</p>
@@ -43,6 +43,7 @@ public class EurekaOneDiscoveryStrategyFactory
     }
 
     private static EurekaClient eurekaClient;
+    private static String groupName;
 
     public Class<? extends DiscoveryStrategy> getDiscoveryStrategyType() {
         return EurekaOneDiscoveryStrategy.class;
@@ -52,7 +53,7 @@ public class EurekaOneDiscoveryStrategyFactory
                                                   Map<String, Comparable> properties) {
         EurekaOneDiscoveryStrategyBuilder builder = new EurekaOneDiscoveryStrategyBuilder();
         builder.setDiscoveryNode(discoveryNode).setILogger(logger).setProperties(properties)
-                .setEurekaClient(eurekaClient);
+                .setEurekaClient(eurekaClient).setGroupName(groupName);
         return builder.build();
     }
 
@@ -67,5 +68,15 @@ public class EurekaOneDiscoveryStrategyFactory
      */
     public static void setEurekaClient(EurekaClient eurekaClient) {
         EurekaOneDiscoveryStrategyFactory.eurekaClient = eurekaClient;
+    }
+    
+    /**
+     * Set hazelcast cluster name.
+     * 
+     * @param groupName
+     *            hazelcast cluster name
+     */
+    public static void setGroupName(String groupName) {
+        EurekaOneDiscoveryStrategyFactory.groupName = groupName;
     }
 }

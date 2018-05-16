@@ -16,6 +16,12 @@
 
 package com.hazelcast.eureka.one;
 
+import static com.hazelcast.eureka.one.EurekaOneProperties.EUREKA_ONE_SYSTEM_PREFIX;
+import static com.hazelcast.eureka.one.EurekaOneProperties.HZ_PROPERTY_DEFINITIONS;
+import static com.hazelcast.eureka.one.EurekaOneProperties.NAMESPACE;
+import static com.hazelcast.eureka.one.EurekaOneProperties.SELF_REGISTRATION;
+import static com.hazelcast.eureka.one.EurekaOneProperties.USE_CLASSPATH_EUREKA_CLIENT_PROPS;
+
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URL;
@@ -51,17 +57,12 @@ import com.netflix.discovery.EurekaClient;
 import com.netflix.discovery.EurekaClientConfig;
 import com.netflix.discovery.shared.Application;
 
-import static com.hazelcast.eureka.one.EurekaOneProperties.EUREKA_ONE_SYSTEM_PREFIX;
-import static com.hazelcast.eureka.one.EurekaOneProperties.HZ_PROPERTY_DEFINITIONS;
-import static com.hazelcast.eureka.one.EurekaOneProperties.NAMESPACE;
-import static com.hazelcast.eureka.one.EurekaOneProperties.SELF_REGISTRATION;
-import static com.hazelcast.eureka.one.EurekaOneProperties.USE_CLASSPATH_EUREKA_CLIENT_PROPS;
-
 final class EurekaOneDiscoveryStrategy
         extends AbstractDiscoveryStrategy {
 
     static final class EurekaOneDiscoveryStrategyBuilder {
         private EurekaClient eurekaClient;
+        private String groupName = "dev";
         private ApplicationInfoManager applicationInfoManager;
         private DiscoveryNode discoveryNode;
         private ILogger logger = new NoLogFactory().getLogger(EurekaOneDiscoveryStrategy.class.getName());
@@ -74,6 +75,11 @@ final class EurekaOneDiscoveryStrategy
                 this.applicationInfoManager = eurekaClient.getApplicationInfoManager();
                 this.changeStrategy = new NoopUpdater();
             }
+            return this;
+        }
+        
+        EurekaOneDiscoveryStrategyBuilder setGroupName(final String groupName) {
+            this.groupName = groupName;
             return this;
         }
 
@@ -125,6 +131,7 @@ final class EurekaOneDiscoveryStrategy
     private static final int DISCOVERY_RETRY_TIMEOUT = 1;
 
     private final EurekaClient eurekaClient;
+    private final String groupName;
     private final ApplicationInfoManager applicationInfoManager;
 
     private final Boolean useClasspathEurekaClientProps;
@@ -163,6 +170,7 @@ final class EurekaOneDiscoveryStrategy
         } else {
             this.eurekaClient = builder.eurekaClient;
         }
+        this.groupName = builder.groupName;
     }
 
     private Map<String, Object> getEurekaClientProperties(String namespace, Map<String, Comparable> properties) {
@@ -216,6 +224,14 @@ final class EurekaOneDiscoveryStrategy
             throw new IllegalStateException("Cannot build EurekaInstanceInfo", e);
         }
     }
+    
+    private String getGroupNameFromMetadata(Map<String, String> metadata) {
+        String groupName = "dev"; // default value
+        if (metadata.containsKey(EurekaHazelcastMetadata.HAZELCAST_GROUP_NAME)) {
+            groupName = metadata.get(EurekaHazelcastMetadata.HAZELCAST_GROUP_NAME);
+        }
+        return groupName;
+    }
 
     public Iterable<DiscoveryNode> discoverNodes() {
         List<DiscoveryNode> nodes = new ArrayList<DiscoveryNode>();
@@ -235,6 +251,7 @@ final class EurekaOneDiscoveryStrategy
         }
         if (application != null) {
             List<InstanceInfo> instances = application.getInstancesAsIsFromEureka();
+            
             for (InstanceInfo instance : instances) {
                 // Only recognize up and running instances
                 if (instance.getStatus() != InstanceInfo.InstanceStatus.UP) {
@@ -247,19 +264,23 @@ final class EurekaOneDiscoveryStrategy
                 }
 
                 int port = instance.getPort();
-                @SuppressWarnings({"unchecked", "rawtypes"})
-                Map<String, Object> metadata = (Map) instance.getMetadata();
-                if (metadata.containsKey(EurekaHazelcastMetadata.HAZELCAST_PORT)) {
-                    port = Integer.parseInt(metadata.get(EurekaHazelcastMetadata.HAZELCAST_PORT).toString());
-                }
-                if (metadata.containsKey(EurekaHazelcastMetadata.HAZELCAST_HOST)) {
-                    try {
-                        address = InetAddress.getByName(metadata.get(EurekaHazelcastMetadata.HAZELCAST_HOST).toString());
-                    } catch (UnknownHostException e) {
-                        getLogger().warning("Instance address '" + instance + "' could not be resolved", e);
+                Map<String, String> metadata = instance.getMetadata();
+                
+                if (getGroupNameFromMetadata(metadata).equals(groupName)) {
+                    if (metadata.containsKey(EurekaHazelcastMetadata.HAZELCAST_PORT)) {
+                        port = Integer.parseInt(metadata.get(EurekaHazelcastMetadata.HAZELCAST_PORT));
                     }
+                    if (metadata.containsKey(EurekaHazelcastMetadata.HAZELCAST_HOST)) {
+                        try {
+                            address = InetAddress.getByName(metadata.get(EurekaHazelcastMetadata.HAZELCAST_HOST));
+                        } catch (UnknownHostException e) {
+                            getLogger().warning("Instance address '" + instance + "' could not be resolved", e);
+                        }
+                    }
+                    @SuppressWarnings({"unchecked", "rawtypes"})
+                    Map<String, Object> properties = (Map) metadata;
+                    nodes.add(new SimpleDiscoveryNode(new Address(address, port), properties));
                 }
-                nodes.add(new SimpleDiscoveryNode(new Address(address, port), metadata));
             }
         }
         return nodes;

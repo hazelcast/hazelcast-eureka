@@ -7,4 +7,5 @@ public class EurekaHazelcastMetadata {
 
     public static final String HAZELCAST_HOST = "hazelcast.host";
     public static final String HAZELCAST_PORT = "hazelcast.port";
+    public static final String HAZELCAST_GROUP_NAME = "hazelcast.groupName";
 }
