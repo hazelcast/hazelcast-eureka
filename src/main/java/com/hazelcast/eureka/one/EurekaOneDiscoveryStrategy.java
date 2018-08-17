@@ -21,6 +21,7 @@ import static com.hazelcast.eureka.one.EurekaOneProperties.HZ_PROPERTY_DEFINITIO
 import static com.hazelcast.eureka.one.EurekaOneProperties.NAMESPACE;
 import static com.hazelcast.eureka.one.EurekaOneProperties.SELF_REGISTRATION;
 import static com.hazelcast.eureka.one.EurekaOneProperties.USE_METADATA_FOR_HOST_AND_PORT;
+import static com.hazelcast.eureka.one.EurekaOneProperties.SKIP_EUREKA_REGISTRATION_VERIFICATION;
 import static com.hazelcast.eureka.one.EurekaOneProperties.USE_CLASSPATH_EUREKA_CLIENT_PROPS;
 
 import java.io.IOException;
@@ -139,6 +140,7 @@ final class EurekaOneDiscoveryStrategy
     private final Boolean useClasspathEurekaClientProps;
     private final String namespace;
     private StatusChangeStrategy statusChangeStrategy;
+    private final Boolean skipEurekaRegistrationVerification;
 
     private EurekaOneDiscoveryStrategy(final EurekaOneDiscoveryStrategyBuilder builder) {
         super(builder.logger, builder.properties);
@@ -146,6 +148,7 @@ final class EurekaOneDiscoveryStrategy
         this.namespace = getOrDefault(EUREKA_ONE_SYSTEM_PREFIX, NAMESPACE, "hazelcast");
         boolean selfRegistration = getOrDefault(EUREKA_ONE_SYSTEM_PREFIX, SELF_REGISTRATION, true);
         boolean useMetadataForHostAndPort = getOrDefault(EUREKA_ONE_SYSTEM_PREFIX, USE_METADATA_FOR_HOST_AND_PORT, false);
+        this.skipEurekaRegistrationVerification = getOrDefault(EUREKA_ONE_SYSTEM_PREFIX, SKIP_EUREKA_REGISTRATION_VERIFICATION, false);
         this.useClasspathEurekaClientProps = getOrDefault(EUREKA_ONE_SYSTEM_PREFIX, USE_CLASSPATH_EUREKA_CLIENT_PROPS, true);
         // override registration if requested
         if (!selfRegistration && !useMetadataForHostAndPort) {
@@ -304,7 +307,9 @@ final class EurekaOneDiscoveryStrategy
     @Override
     public void start() {
         statusChangeStrategy.update(applicationInfoManager, InstanceInfo.InstanceStatus.UP);
-        verifyEurekaRegistration();
+        if (!skipEurekaRegistrationVerification) {
+            verifyEurekaRegistration();
+        }
     }
 
     @Override

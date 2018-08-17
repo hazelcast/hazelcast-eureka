@@ -68,6 +68,8 @@ public final class EurekaOneProperties {
     public static final PropertyDefinition SELF_REGISTRATION = property("self-registration", BOOLEAN);
     
     public static final PropertyDefinition USE_METADATA_FOR_HOST_AND_PORT = property("use-metadata-for-host-and-port", BOOLEAN);
+    
+    public static final PropertyDefinition SKIP_EUREKA_REGISTRATION_VERIFICATION = property("skip-eureka-registration-verification", BOOLEAN);
 
     /**
      * <p>Configuration key: <tt>namespace</tt></p>
@@ -81,7 +83,8 @@ public final class EurekaOneProperties {
             USE_CLASSPATH_EUREKA_CLIENT_PROPS,
             SELF_REGISTRATION,
             NAMESPACE,
-            USE_METADATA_FOR_HOST_AND_PORT
+            USE_METADATA_FOR_HOST_AND_PORT,
+            SKIP_EUREKA_REGISTRATION_VERIFICATION
     );
 
     static final Collection<PropertyDefinition> EUREKA_CLIENT_PROPERTY_DEFINITIONS = Lists.newArrayList(
