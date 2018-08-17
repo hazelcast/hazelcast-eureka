@@ -81,8 +81,10 @@ public class EurekaOneDiscoveryStrategyMetadataTest extends AbstractEurekaOneDis
         when(mockInfo.getStatus()).thenReturn(InstanceInfo.InstanceStatus.UP);
         when(mockInfo.getIPAddr()).thenReturn("local");
         
-        @SuppressWarnings("unchecked")
-        Map<String, String> metadata = mock(HashMap.class);
+        Map<String, String> metadata = new HashMap<String, String>();
+        metadata.put(EurekaHazelcastMetadata.HAZELCAST_HOST, "127.0.0.1");
+        metadata.put(EurekaHazelcastMetadata.HAZELCAST_PORT, "5777");
+        metadata.put(EurekaHazelcastMetadata.HAZELCAST_GROUP_NAME, "my-different-group");
         when(mockInfo.getMetadata()).thenReturn(metadata);
 
         application.addInstance(mockInfo);
