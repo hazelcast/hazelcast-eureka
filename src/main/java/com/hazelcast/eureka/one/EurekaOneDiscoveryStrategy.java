@@ -35,6 +35,7 @@ import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Preconditions;
 import com.hazelcast.config.properties.PropertyDefinition;
 import com.hazelcast.logging.ILogger;
 import com.hazelcast.logging.NoLogFactory;
@@ -73,7 +74,6 @@ final class EurekaOneDiscoveryStrategy
             this.eurekaClient = eurekaClient;
             if (eurekaClient != null) {
                 this.applicationInfoManager = eurekaClient.getApplicationInfoManager();
-                this.changeStrategy = new NoopUpdater();
             }
             return this;
         }
@@ -111,6 +111,12 @@ final class EurekaOneDiscoveryStrategy
         }
 
         EurekaOneDiscoveryStrategy build() {
+        	
+        	if (eurekaClient != null) {
+        		Preconditions.checkNotNull(groupName, "groupName must not be null if eurekaClient is provided");
+        		this.changeStrategy = new MetadataUpdater(discoveryNode, groupName);
+        	}
+        	
             if (null == changeStrategy) {
                 changeStrategy = new DefaultUpdater();
             }
@@ -258,28 +264,36 @@ final class EurekaOneDiscoveryStrategy
                     continue;
                 }
 
-                InetAddress address = mapAddress(instance);
-                if (null == address) {
-                    continue;
-                }
-
-                int port = instance.getPort();
                 Map<String, String> metadata = instance.getMetadata();
+                @SuppressWarnings({"unchecked", "rawtypes"})
+                Map<String, Object> properties = (Map) metadata;
                 
-                if (getGroupNameFromMetadata(metadata).equals(groupName)) {
-                    if (metadata.containsKey(EurekaHazelcastMetadata.HAZELCAST_PORT)) {
-                        port = Integer.parseInt(metadata.get(EurekaHazelcastMetadata.HAZELCAST_PORT));
-                    }
-                    if (metadata.containsKey(EurekaHazelcastMetadata.HAZELCAST_HOST)) {
-                        try {
-                            address = InetAddress.getByName(metadata.get(EurekaHazelcastMetadata.HAZELCAST_HOST));
-                        } catch (UnknownHostException e) {
-                            getLogger().warning("Instance address '" + instance + "' could not be resolved", e);
-                        }
-                    }
-                    @SuppressWarnings({"unchecked", "rawtypes"})
-                    Map<String, Object> properties = (Map) metadata;
-                    nodes.add(new SimpleDiscoveryNode(new Address(address, port), properties));
+                if (statusChangeStrategy instanceof MetadataUpdater) {
+	                if (getGroupNameFromMetadata(metadata).equals(groupName)) {
+	                	InetAddress address = null;
+	                	int port = -1;
+	                    if (metadata.containsKey(EurekaHazelcastMetadata.HAZELCAST_PORT)) {
+	                    	port = Integer.parseInt(metadata.get(EurekaHazelcastMetadata.HAZELCAST_PORT));
+	                    }
+	                    if (metadata.containsKey(EurekaHazelcastMetadata.HAZELCAST_HOST)) {
+	                        try {
+	                        	address = InetAddress.getByName(metadata.get(EurekaHazelcastMetadata.HAZELCAST_HOST));
+	                        } catch (UnknownHostException e) {
+	                            getLogger().warning("Instance address '" + instance + "' could not be resolved", e);
+	                        }
+	                    }
+	                    if (address != null) {
+	                    	nodes.add(new SimpleDiscoveryNode(new Address(address, port), properties));
+	                    }
+	                }
+                } else {
+                	 InetAddress address = mapAddress(instance);
+                     if (null == address) {
+                         continue;
+                     }
+
+                     int port = instance.getPort();
+                     nodes.add(new SimpleDiscoveryNode(new Address(address, port), properties));
                 }
             }
         }
@@ -318,8 +332,8 @@ final class EurekaOneDiscoveryStrategy
             try {
                 getLogger().info("Waiting for registration with Eureka...");
                 application = eurekaClient.getApplication(applicationName);
-
                 if (application != null) {
+                	getLogger().info("Registered in Eureka");
                     break;
                 }
             } catch (Throwable t) {
