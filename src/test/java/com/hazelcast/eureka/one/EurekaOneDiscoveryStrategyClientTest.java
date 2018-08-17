@@ -34,6 +34,7 @@ public class EurekaOneDiscoveryStrategyClientTest extends AbstractEurekaOneDisco
         strategy = new EurekaOneDiscoveryStrategyBuilder()
                 .setEurekaClient(eurekaClient)
                 .setApplicationInfoManager(applicationInfoManager)
+                .setGroupName("dev")
                 .build();
     }
 

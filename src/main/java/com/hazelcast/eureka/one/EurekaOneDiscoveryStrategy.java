@@ -112,12 +112,7 @@ final class EurekaOneDiscoveryStrategy
         }
 
         EurekaOneDiscoveryStrategy build() {
-        	
-        	if (eurekaClient != null) {
-        		Preconditions.checkNotNull(groupName, "groupName must not be null if eurekaClient is provided");
-        		this.changeStrategy = new MetadataUpdater(discoveryNode, groupName);
-        	}
-        	
+
             if (null == changeStrategy) {
                 changeStrategy = new DefaultUpdater();
             }
@@ -155,6 +150,10 @@ final class EurekaOneDiscoveryStrategy
         // override registration if requested
         if (!selfRegistration && !useMetadataForHostAndPort) {
             statusChangeStrategy = new NoopUpdater();
+        } else if (useMetadataForHostAndPort) {
+            Preconditions.checkNotNull(builder.eurekaClient, "eurekaClient must not be null if eurekaClient is provided");
+            Preconditions.checkNotNull(builder.groupName, "groupName must not be null if eurekaClient is provided");
+            statusChangeStrategy = new MetadataUpdater(builder.discoveryNode, builder.groupName);
         } else {
             this.statusChangeStrategy = builder.changeStrategy;
         }

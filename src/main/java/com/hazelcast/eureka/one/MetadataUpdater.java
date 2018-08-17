@@ -27,32 +27,32 @@ import com.netflix.appinfo.InstanceInfo;
  *
  */
 class MetadataUpdater implements StatusChangeStrategy {
-	
+
     private DiscoveryNode discoveryNode;
-	private String groupName;
+    private String groupName;
 
-	public MetadataUpdater(DiscoveryNode discoveryNode, String groupName) {
-		Preconditions.checkNotNull(discoveryNode);
+    public MetadataUpdater(DiscoveryNode discoveryNode, String groupName) {
+        Preconditions.checkNotNull(discoveryNode);
         Preconditions.checkNotNull(groupName);
-        
-		this.discoveryNode = discoveryNode;
-		this.groupName = groupName;
-	}
 
-	@Override
+        this.discoveryNode = discoveryNode;
+        this.groupName = groupName;
+    }
+
+    @Override
     public void update(ApplicationInfoManager manager, InstanceInfo.InstanceStatus status) {
         Preconditions.checkNotNull(manager);
         Preconditions.checkNotNull(status);
 
         int port = discoveryNode.getPrivateAddress().getPort();
-		String host = discoveryNode.getPrivateAddress().getHost();
-		
-		// provide Hazelcast info in Eureka metadata
-		Map<String, String> map = manager.getInfo().getMetadata();
-		map.put(EurekaHazelcastMetadata.HAZELCAST_PORT, Integer.toString(port));
-		map.put(EurekaHazelcastMetadata.HAZELCAST_HOST, host);
-		map.put(EurekaHazelcastMetadata.HAZELCAST_GROUP_NAME, groupName);
-		
+        String host = discoveryNode.getPrivateAddress().getHost();
+
+        // provide Hazelcast info in Eureka metadata
+        Map<String, String> map = manager.getInfo().getMetadata();
+        map.put(EurekaHazelcastMetadata.HAZELCAST_PORT, Integer.toString(port));
+        map.put(EurekaHazelcastMetadata.HAZELCAST_HOST, host);
+        map.put(EurekaHazelcastMetadata.HAZELCAST_GROUP_NAME, groupName);
+
     }
 
     @Override
