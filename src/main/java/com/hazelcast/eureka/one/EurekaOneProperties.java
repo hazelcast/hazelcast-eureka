@@ -66,6 +66,8 @@ public final class EurekaOneProperties {
      * <p>The default value is: <tt>true</tt></p>
      */
     public static final PropertyDefinition SELF_REGISTRATION = property("self-registration", BOOLEAN);
+    
+    public static final PropertyDefinition USE_METADATA_FOR_HOST_AND_PORT = property("use-metadata-for-host-and-port", BOOLEAN);
 
     /**
      * <p>Configuration key: <tt>namespace</tt></p>
@@ -78,7 +80,8 @@ public final class EurekaOneProperties {
     static final Collection<PropertyDefinition> HZ_PROPERTY_DEFINITIONS = Lists.newArrayList(
             USE_CLASSPATH_EUREKA_CLIENT_PROPS,
             SELF_REGISTRATION,
-            NAMESPACE
+            NAMESPACE,
+            USE_METADATA_FOR_HOST_AND_PORT
     );
 
     static final Collection<PropertyDefinition> EUREKA_CLIENT_PROPERTY_DEFINITIONS = Lists.newArrayList(
