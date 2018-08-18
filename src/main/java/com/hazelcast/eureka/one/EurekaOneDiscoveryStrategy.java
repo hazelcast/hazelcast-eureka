@@ -340,7 +340,7 @@ final class EurekaOneDiscoveryStrategy
                 getLogger().info("Waiting for registration with Eureka...");
                 application = eurekaClient.getApplication(applicationName);
                 if (application != null) {
-                	getLogger().info("Registered in Eureka");
+                    getLogger().info("Registered in Eureka");
                     break;
                 }
             } catch (Throwable t) {
