@@ -19,6 +19,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import com.google.common.collect.Maps;
 import com.hazelcast.eureka.one.EurekaOneDiscoveryStrategy.EurekaOneDiscoveryStrategyBuilder;
 import com.hazelcast.nio.Address;
 import com.hazelcast.spi.discovery.DiscoveryNode;
@@ -33,8 +34,11 @@ public class EurekaOneDiscoveryStrategyMetadataTest extends AbstractEurekaOneDis
 
     @Override
     protected void initializeStrategy() {
+        HashMap<String, Comparable> properties = Maps.newHashMap();
+        properties.put("use-metadata-for-host-and-port", Boolean.TRUE);
         EurekaOneDiscoveryStrategyBuilder builder = new EurekaOneDiscoveryStrategyBuilder();
         builder.setEurekaClient(eurekaClient)
+                .setProperties(properties)
                 .setApplicationInfoManager(applicationInfoManager)
                 .setDiscoveryNode(node)
                 .setGroupName("my-custom-group")
