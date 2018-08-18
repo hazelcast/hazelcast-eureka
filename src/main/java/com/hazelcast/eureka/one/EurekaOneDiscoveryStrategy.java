@@ -38,6 +38,7 @@ import java.util.concurrent.TimeUnit;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
+import com.hazelcast.config.GroupConfig;
 import com.hazelcast.config.properties.PropertyDefinition;
 import com.hazelcast.logging.ILogger;
 import com.hazelcast.logging.NoLogFactory;
@@ -65,7 +66,7 @@ final class EurekaOneDiscoveryStrategy
 
     static final class EurekaOneDiscoveryStrategyBuilder {
         private EurekaClient eurekaClient;
-        private String groupName = "dev";
+        private String groupName = GroupConfig.DEFAULT_GROUP_NAME;
         private ApplicationInfoManager applicationInfoManager;
         private DiscoveryNode discoveryNode;
         private ILogger logger = new NoLogFactory().getLogger(EurekaOneDiscoveryStrategy.class.getName());
@@ -181,7 +182,7 @@ final class EurekaOneDiscoveryStrategy
         } else {
             this.eurekaClient = builder.eurekaClient;
         }
-        this.groupName = builder.groupName;
+        this.groupName = builder.groupName != null ? builder.groupName : GroupConfig.DEFAULT_GROUP_NAME;
     }
 
     private Map<String, Object> getEurekaClientProperties(String namespace, Map<String, Comparable> properties) {
@@ -237,7 +238,7 @@ final class EurekaOneDiscoveryStrategy
     }
     
     private String getGroupNameFromMetadata(Map<String, String> metadata) {
-        String groupName = "dev"; // default value
+        String groupName = GroupConfig.DEFAULT_GROUP_NAME;
         if (metadata.containsKey(EurekaHazelcastMetadata.HAZELCAST_GROUP_NAME)) {
             groupName = metadata.get(EurekaHazelcastMetadata.HAZELCAST_GROUP_NAME);
         }
