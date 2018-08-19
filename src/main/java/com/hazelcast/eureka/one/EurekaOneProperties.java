@@ -73,8 +73,7 @@ public final class EurekaOneProperties {
      * Configuration key: <tt>use-metadata-for-host-and-port</tt>
      * </p>
      * <p>
-     * Defines if the Discovery SPI plugin will register itself with the Eureka 1
-     * service and use Eureka metadata map to store host and port of Hazelcast
+     * Defines if the Discovery SPI plugin will use Eureka metadata map to store host and port of Hazelcast
      * instance, and when it looks for other nodes it will use the metadata as well.
      * </p>
      * <p>
