@@ -35,6 +35,7 @@ public class EurekaOneDiscoveryStrategyMetadataTest extends AbstractEurekaOneDis
     @Override
     protected void initializeStrategy() {
         HashMap<String, Comparable> properties = Maps.newHashMap();
+        properties.put("self-registration", Boolean.FALSE);
         properties.put("use-metadata-for-host-and-port", Boolean.TRUE);
         EurekaOneDiscoveryStrategyBuilder builder = new EurekaOneDiscoveryStrategyBuilder();
         builder.setEurekaClient(eurekaClient)
@@ -42,7 +43,7 @@ public class EurekaOneDiscoveryStrategyMetadataTest extends AbstractEurekaOneDis
                 .setApplicationInfoManager(applicationInfoManager)
                 .setDiscoveryNode(node)
                 .setGroupName("my-custom-group")
-                .setStatusChangeStrategy(new MetadataUpdater(node, "my-custom-group"));
+                .setStatusChangeStrategy(new MetadataUpdater(node, false, "my-custom-group"));
         strategy = builder.build();
     }
 
@@ -104,7 +105,7 @@ public class EurekaOneDiscoveryStrategyMetadataTest extends AbstractEurekaOneDis
     }
     
     @Test
-    public void shouldRegisterMetadata() throws Exception{
+    public void shouldUpdateMetadata() throws Exception{
         InstanceInfo instanceInfo = mock(InstanceInfo.class);
         when(instanceInfo.getId()).thenReturn(RandomStringUtils.random(42));
         when(instanceInfo.getStatus()).thenReturn(InstanceInfo.InstanceStatus.UP);

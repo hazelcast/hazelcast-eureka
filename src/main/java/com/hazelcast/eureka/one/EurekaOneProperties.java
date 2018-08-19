@@ -18,6 +18,7 @@ package com.hazelcast.eureka.one;
 
 import java.util.Collection;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.hazelcast.config.properties.PropertyDefinition;
 import com.hazelcast.config.properties.PropertyTypeConverter;
@@ -67,8 +68,22 @@ public final class EurekaOneProperties {
      */
     public static final PropertyDefinition SELF_REGISTRATION = property("self-registration", BOOLEAN);
     
+    /**
+     * <p>
+     * Configuration key: <tt>use-metadata-for-host-and-port</tt>
+     * </p>
+     * <p>
+     * Defines if the Discovery SPI plugin will register itself with the Eureka 1
+     * service and use Eureka metadata map to store host and port of Hazelcast
+     * instance, and when it looks for other nodes it will use the metadata as well.
+     * </p>
+     * <p>
+     * The default value is: <tt>false</tt>
+     * </p>
+     */
     public static final PropertyDefinition USE_METADATA_FOR_HOST_AND_PORT = property("use-metadata-for-host-and-port", BOOLEAN);
     
+    @VisibleForTesting
     public static final PropertyDefinition SKIP_EUREKA_REGISTRATION_VERIFICATION = property("skip-eureka-registration-verification", BOOLEAN);
 
     /**

@@ -37,7 +37,6 @@ import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Preconditions;
 import com.hazelcast.config.GroupConfig;
 import com.hazelcast.config.properties.PropertyDefinition;
 import com.hazelcast.logging.ILogger;
@@ -152,13 +151,12 @@ final class EurekaOneDiscoveryStrategy
         this.useMetadataForHostAndPort = getOrDefault(EUREKA_ONE_SYSTEM_PREFIX, USE_METADATA_FOR_HOST_AND_PORT, false);
         this.skipEurekaRegistrationVerification = getOrDefault(EUREKA_ONE_SYSTEM_PREFIX, SKIP_EUREKA_REGISTRATION_VERIFICATION, false);
         this.useClasspathEurekaClientProps = getOrDefault(EUREKA_ONE_SYSTEM_PREFIX, USE_CLASSPATH_EUREKA_CLIENT_PROPS, true);
+        this.groupName = builder.groupName != null ? builder.groupName : GroupConfig.DEFAULT_GROUP_NAME;
         // override registration if requested
         if (!selfRegistration && !useMetadataForHostAndPort) {
             statusChangeStrategy = new NoopUpdater();
         } else if (useMetadataForHostAndPort) {
-            Preconditions.checkNotNull(builder.eurekaClient, "eurekaClient must not be null if eurekaClient is provided");
-            Preconditions.checkNotNull(builder.groupName, "groupName must not be null if eurekaClient is provided");
-            statusChangeStrategy = new MetadataUpdater(builder.discoveryNode, builder.groupName);
+            statusChangeStrategy = new MetadataUpdater(builder.discoveryNode, selfRegistration, this.groupName);
         } else {
             this.statusChangeStrategy = builder.changeStrategy;
         }
@@ -182,7 +180,6 @@ final class EurekaOneDiscoveryStrategy
         } else {
             this.eurekaClient = builder.eurekaClient;
         }
-        this.groupName = builder.groupName != null ? builder.groupName : GroupConfig.DEFAULT_GROUP_NAME;
     }
 
     private Map<String, Object> getEurekaClientProperties(String namespace, Map<String, Comparable> properties) {

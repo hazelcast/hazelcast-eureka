@@ -296,8 +296,7 @@ public class HazelcastClientTestCase extends HazelcastTestSupport {
         
         verify(eurekaClient, times(2)).getApplicationInfoManager();
         verify(eurekaClient, times(2)).getApplication(APP_NAME);
-        verify(applicationInfoManager, never()).setInstanceStatus(InstanceStatus.UP);
-        verify(applicationInfoManager, never()).setInstanceStatus(any(InstanceStatus.class));
+        verify(applicationInfoManager, atLeastOnce()).setInstanceStatus(InstanceStatus.UP);
 
         assertClusterSizeEventually(2, hz1);
         assertClusterSizeEventually(2, hz2);

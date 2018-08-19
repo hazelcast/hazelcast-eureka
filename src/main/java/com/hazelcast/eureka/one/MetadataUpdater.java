@@ -29,13 +29,15 @@ import com.netflix.appinfo.InstanceInfo;
 class MetadataUpdater implements StatusChangeStrategy {
 
     private DiscoveryNode discoveryNode;
+    private boolean selfRegistration;
     private String groupName;
 
-    public MetadataUpdater(DiscoveryNode discoveryNode, String groupName) {
+    public MetadataUpdater(DiscoveryNode discoveryNode, boolean selfRegistration, String groupName) {
         Preconditions.checkNotNull(discoveryNode);
         Preconditions.checkNotNull(groupName);
 
         this.discoveryNode = discoveryNode;
+        this.selfRegistration = selfRegistration;
         this.groupName = groupName;
     }
 
@@ -52,11 +54,14 @@ class MetadataUpdater implements StatusChangeStrategy {
         map.put(EurekaHazelcastMetadata.HAZELCAST_PORT, Integer.toString(port));
         map.put(EurekaHazelcastMetadata.HAZELCAST_HOST, host);
         map.put(EurekaHazelcastMetadata.HAZELCAST_GROUP_NAME, groupName);
-
+        
+        if (shouldRegister()) {
+            manager.setInstanceStatus(status);
+        }
     }
 
     @Override
     public boolean shouldRegister() {
-        return true;
+        return this.selfRegistration;
     }
 }
