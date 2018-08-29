@@ -35,7 +35,7 @@ public class EurekaOneDiscoveryStrategyMetadataTest extends AbstractEurekaOneDis
     @Override
     protected void initializeStrategy() {
         HashMap<String, Comparable> properties = Maps.newHashMap();
-        properties.put("self-registration", Boolean.FALSE);
+        properties.put("self-registration", Boolean.TRUE);
         properties.put("use-metadata-for-host-and-port", Boolean.TRUE);
         EurekaOneDiscoveryStrategyBuilder builder = new EurekaOneDiscoveryStrategyBuilder();
         builder.setEurekaClient(eurekaClient)
@@ -69,7 +69,7 @@ public class EurekaOneDiscoveryStrategyMetadataTest extends AbstractEurekaOneDis
         Iterable<DiscoveryNode> nodes = strategy.discoverNodes();
 
         verify(eurekaClient).getApplication(APPLICATION_NAME);
-        verify(mockInfo).getMetadata();
+        verify(mockInfo, atLeastOnce()).getMetadata();
 
         assertThat(nodes.iterator().hasNext(), is(true));
         
@@ -121,7 +121,6 @@ public class EurekaOneDiscoveryStrategyMetadataTest extends AbstractEurekaOneDis
 
         strategy.start();
 
-        verify(applicationInfoManager, never()).setInstanceStatus(any(InstanceInfo.InstanceStatus.class));
         verify(applicationInfoManager, atLeastOnce()).getInfo();
         verify(instanceInfo, atLeastOnce()).getMetadata();
         verify(metadata).put(EurekaHazelcastMetadata.HAZELCAST_PORT, "5708");
