@@ -279,11 +279,7 @@ final class EurekaOneDiscoveryStrategy
 	                    	port = Integer.parseInt(metadata.get(EurekaHazelcastMetadata.HAZELCAST_PORT));
 	                    }
 	                    if (metadata.containsKey(EurekaHazelcastMetadata.HAZELCAST_HOST)) {
-	                        try {
-	                        	address = InetAddress.getByName(metadata.get(EurekaHazelcastMetadata.HAZELCAST_HOST));
-	                        } catch (UnknownHostException e) {
-	                            getLogger().warning("Instance address '" + instance + "' could not be resolved", e);
-	                        }
+	                        address = mapAddress(instance);
 	                    }
 	                    if (address != null) {
 	                    	nodes.add(new SimpleDiscoveryNode(new Address(address, port), properties));
@@ -321,8 +317,12 @@ final class EurekaOneDiscoveryStrategy
 
     private InetAddress mapAddress(InstanceInfo instance) {
         try {
-            return InetAddress.getByName(instance.getIPAddr());
-
+            if (useMetadataForHostAndPort) {
+                Map<String, String> metadata = instance.getMetadata();
+                return InetAddress.getByName(metadata.get(EurekaHazelcastMetadata.HAZELCAST_HOST));
+            } else {
+                return InetAddress.getByName(instance.getIPAddr());
+            }
         } catch (UnknownHostException e) {
             getLogger().warning("InstanceInfo '" + instance + "' could not be resolved");
         }
