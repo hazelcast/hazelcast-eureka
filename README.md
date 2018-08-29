@@ -56,6 +56,7 @@ The following is an example declarative configuration.
                     <properties>
                        <property name="self-registration">true</property>
                        <property name="namespace">hazelcast</property>
+                       <property name="use-metadata-for-host-and-port">false</property>
                     </properties>
                 </discovery-strategy>
             </discovery-strategies>
@@ -67,6 +68,9 @@ The following is an example declarative configuration.
 It is optional. Default value is `true`.
 * `namespace`: Definition for providing different namespaces in order not to collide with other service registry
   clients in eureka-client.properties file. It is optional. Default value is `hazelcast`.
+* `use-metadata-for-host-and-port`: Defines if the Discovery SPI plugin will use Eureka metadata map to store 
+host and port of Hazelcast instance, and when it looks for other nodes it will use the metadata as well. 
+Default value is `false`.
 
 Below you can also find an example of Eureka client properties. 
 
@@ -183,6 +187,7 @@ If your application provides already configured `EurekaClient` instance e.g. if 
 ```
 EurekaClient eurekaClient = ...
 EurekaOneDiscoveryStrategyFactory.setEurekaClient(eurekaClient);
+EurekaOneDiscoveryStrategyFactory.setGroupName("dev"); // optional group name. Default is 'dev'.
 ```
 
 When using reused client as above, discovery implementation will **not** send Eureka Server any status changes regarding
