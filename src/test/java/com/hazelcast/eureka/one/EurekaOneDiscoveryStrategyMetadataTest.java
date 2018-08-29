@@ -43,7 +43,7 @@ public class EurekaOneDiscoveryStrategyMetadataTest extends AbstractEurekaOneDis
                 .setApplicationInfoManager(applicationInfoManager)
                 .setDiscoveryNode(node)
                 .setGroupName("my-custom-group")
-                .setStatusChangeStrategy(new MetadataUpdater(node, false, "my-custom-group"));
+                .setStatusChangeStrategy(new MetadataUpdater(node, true, "my-custom-group"));
         strategy = builder.build();
     }
 

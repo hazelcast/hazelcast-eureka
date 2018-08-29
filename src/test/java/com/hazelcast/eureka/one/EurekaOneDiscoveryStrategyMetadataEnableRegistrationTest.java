@@ -39,7 +39,7 @@ public class EurekaOneDiscoveryStrategyMetadataEnableRegistrationTest extends Ab
                 .setApplicationInfoManager(applicationInfoManager)
                 .setDiscoveryNode(node)
                 .setGroupName("my-custom-group")
-                .setStatusChangeStrategy(new MetadataUpdater(node, false, "my-custom-group"));
+                .setStatusChangeStrategy(new MetadataUpdater(node, true, "my-custom-group"));
         strategy = builder.build();
     }
 

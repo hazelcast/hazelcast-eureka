@@ -46,16 +46,16 @@ class MetadataUpdater implements StatusChangeStrategy {
         Preconditions.checkNotNull(manager);
         Preconditions.checkNotNull(status);
         
-        if (shouldRegister()) {
-            int port = discoveryNode.getPrivateAddress().getPort();
-            String host = discoveryNode.getPrivateAddress().getHost();
-    
-            // provide Hazelcast info in Eureka metadata
-            Map<String, String> map = manager.getInfo().getMetadata();
-            map.put(EurekaHazelcastMetadata.HAZELCAST_PORT, Integer.toString(port));
-            map.put(EurekaHazelcastMetadata.HAZELCAST_HOST, host);
-            map.put(EurekaHazelcastMetadata.HAZELCAST_GROUP_NAME, groupName);
+        int port = discoveryNode.getPrivateAddress().getPort();
+        String host = discoveryNode.getPrivateAddress().getHost();
+
+        // provide Hazelcast info in Eureka metadata
+        Map<String, String> map = manager.getInfo().getMetadata();
+        map.put(EurekaHazelcastMetadata.HAZELCAST_PORT, Integer.toString(port));
+        map.put(EurekaHazelcastMetadata.HAZELCAST_HOST, host);
+        map.put(EurekaHazelcastMetadata.HAZELCAST_GROUP_NAME, groupName);
         
+        if (shouldRegister()) {
             manager.setInstanceStatus(status);
         }
     }
