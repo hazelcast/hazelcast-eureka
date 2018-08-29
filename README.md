@@ -190,8 +190,13 @@ EurekaOneDiscoveryStrategyFactory.setEurekaClient(eurekaClient);
 EurekaOneDiscoveryStrategyFactory.setGroupName("dev"); // optional group name. Default is 'dev'.
 ```
 
-When using reused client as above, discovery implementation will **not** send Eureka Server any status changes regarding
-application state. Also, if you need to inject `Eureka client` externally, you have to configure discovery
+When `use-metadata-for-host-and-port` is `true` discovery implementation will use Eureka metadata map to store 
+host and port of Hazelcast instance.
+
+When using reused client as above and if `self-registration` is `true`, discovery implementation will send Eureka Server
+status changes regarding Hazelcast instance state. 
+
+Also, if you need to inject `Eureka client` externally, you have to configure discovery
 programmatically as shown above code snippet.
 
 ## Debugging
