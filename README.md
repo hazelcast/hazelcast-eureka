@@ -57,6 +57,7 @@ The following is an example declarative configuration.
                        <property name="self-registration">true</property>
                        <property name="namespace">hazelcast</property>
                        <property name="use-metadata-for-host-and-port">false</property>
+                       <property name="skip-eureka-registration-verification">false</property>
                     </properties>
                 </discovery-strategy>
             </discovery-strategies>
@@ -71,6 +72,9 @@ It is optional. Default value is `true`.
 * `use-metadata-for-host-and-port`: Defines if the Discovery SPI plugin will use Eureka metadata map to store 
 host and port of Hazelcast instance, and when it looks for other nodes it will use the metadata as well. 
 Default value is `false`.
+* `skip-eureka-registration-verification`: When first node starts, it takes some time to do self-registration with 
+Eureka Server. Until Eureka data is updated it make no sense to verify registration. See 
+<a href="https://github.com/Netflix/eureka/wiki/Understanding-eureka-client-server-communication#time-lag" target="_blank">Time Lag</a>. This option will speed up startup when starting first cluster node. Default value is `false`.
 
 Below you can also find an example of Eureka client properties. 
 
