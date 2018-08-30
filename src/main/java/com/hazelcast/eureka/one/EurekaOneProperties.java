@@ -18,7 +18,6 @@ package com.hazelcast.eureka.one;
 
 import java.util.Collection;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.hazelcast.config.properties.PropertyDefinition;
 import com.hazelcast.config.properties.PropertyTypeConverter;
@@ -81,8 +80,22 @@ public final class EurekaOneProperties {
      * </p>
      */
     public static final PropertyDefinition USE_METADATA_FOR_HOST_AND_PORT = property("use-metadata-for-host-and-port", BOOLEAN);
-    
-    @VisibleForTesting
+
+    /**
+     * <p>
+     * Configuration key: <tt>skip-eureka-registration-verification</tt>
+     * </p>
+     * <p>
+     * When first node starts, it takes some time to do self-registration with
+     * Eureka Server. Until Eureka data is updated it make no sense to verify
+     * registration. See
+     * https://github.com/Netflix/eureka/wiki/Understanding-eureka-client-server-communication#time-lag
+     * This option will speed up startup when starting first cluster node.
+     * </p>
+     * <p>
+     * The default value is: <tt>false</tt>
+     * </p>
+     */
     public static final PropertyDefinition SKIP_EUREKA_REGISTRATION_VERIFICATION = property("skip-eureka-registration-verification", BOOLEAN);
 
     /**
