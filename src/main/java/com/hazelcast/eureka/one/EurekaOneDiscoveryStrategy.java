@@ -113,6 +113,15 @@ final class EurekaOneDiscoveryStrategy
         }
 
         EurekaOneDiscoveryStrategy build() {
+
+            if (null == changeStrategy) {
+                changeStrategy = new DefaultUpdater();
+            }
+
+            if (null == discoveryNode) {
+                changeStrategy = new NoopUpdater();
+            }
+
             return new EurekaOneDiscoveryStrategy(this);
         }
     }
@@ -143,17 +152,14 @@ final class EurekaOneDiscoveryStrategy
         this.skipEurekaRegistrationVerification = getOrDefault(EUREKA_ONE_SYSTEM_PREFIX, SKIP_EUREKA_REGISTRATION_VERIFICATION, false);
         this.useClasspathEurekaClientProps = getOrDefault(EUREKA_ONE_SYSTEM_PREFIX, USE_CLASSPATH_EUREKA_CLIENT_PROPS, true);
         this.groupName = builder.groupName != null ? builder.groupName : GroupConfig.DEFAULT_GROUP_NAME;
-        if (builder.changeStrategy != null) {
-            this.statusChangeStrategy = builder.changeStrategy;
-        } else if ((!selfRegistration && !useMetadataForHostAndPort) || builder.discoveryNode == null) {
+
+        // override registration if requested
+        if (!selfRegistration && !useMetadataForHostAndPort) {
             statusChangeStrategy = new NoopUpdater();
-        } else if (selfRegistration && !useMetadataForHostAndPort) {
-            this.statusChangeStrategy = new DefaultUpdater();
         } else if (useMetadataForHostAndPort) {
             statusChangeStrategy = new MetadataUpdater(builder.discoveryNode, selfRegistration, this.groupName);
         } else {
-            // should not happen
-            throw new IllegalStateException("Can't configure StatusChangeStrategy");
+            this.statusChangeStrategy = builder.changeStrategy;
         }
 
         if (builder.applicationInfoManager == null) {
