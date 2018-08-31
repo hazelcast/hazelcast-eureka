@@ -16,9 +16,6 @@
 
 package com.hazelcast.eureka.one;
 
-import java.util.Collection;
-import java.util.Map;
-
 import com.google.common.collect.Lists;
 import com.hazelcast.config.properties.PropertyDefinition;
 import com.hazelcast.eureka.one.EurekaOneDiscoveryStrategy.EurekaOneDiscoveryStrategyBuilder;
@@ -27,6 +24,9 @@ import com.hazelcast.spi.discovery.DiscoveryNode;
 import com.hazelcast.spi.discovery.DiscoveryStrategy;
 import com.hazelcast.spi.discovery.DiscoveryStrategyFactory;
 import com.netflix.discovery.EurekaClient;
+
+import java.util.Collection;
+import java.util.Map;
 
 /**
  * <p>Configuration class of the Hazelcast Discovery Plugin for Eureka.</p>

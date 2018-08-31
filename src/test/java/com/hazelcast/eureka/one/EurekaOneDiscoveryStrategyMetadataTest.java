@@ -127,4 +127,30 @@ public class EurekaOneDiscoveryStrategyMetadataTest extends AbstractEurekaOneDis
         verify(metadata).put(EurekaHazelcastMetadata.HAZELCAST_HOST, "localhost");
         verify(metadata).put(EurekaHazelcastMetadata.HAZELCAST_GROUP_NAME, "my-custom-group");
     }
+
+    @Test
+    public void shouldRegisterAndUpdateMetadata() throws Exception{
+        InstanceInfo instanceInfo = mock(InstanceInfo.class);
+        when(instanceInfo.getId()).thenReturn(RandomStringUtils.random(42));
+        when(instanceInfo.getStatus()).thenReturn(InstanceInfo.InstanceStatus.UP);
+        when(instanceInfo.getIPAddr()).thenReturn("local");
+
+        @SuppressWarnings("unchecked")
+        Map<String, String> metadata = mock(HashMap.class);
+        when(instanceInfo.getMetadata()).thenReturn(metadata);
+
+        when(eurekaClient.getApplication(APPLICATION_NAME)).thenReturn(new Application());
+        when(applicationInfoManager.getInfo()).thenReturn(instanceInfo);
+        when(node.getPrivateAddress()).thenReturn(new Address("localhost", 5708));
+
+        strategy.start();
+
+        verify(applicationInfoManager, atLeastOnce()).setInstanceStatus(any(InstanceInfo.InstanceStatus.class));
+        verify(applicationInfoManager, atLeastOnce()).getInfo();
+        verify(instanceInfo, atLeastOnce()).getMetadata();
+        verify(metadata).put(EurekaHazelcastMetadata.HAZELCAST_PORT, "5708");
+        verify(metadata).put(EurekaHazelcastMetadata.HAZELCAST_HOST, "localhost");
+        verify(metadata).put(EurekaHazelcastMetadata.HAZELCAST_GROUP_NAME, "my-custom-group");
+
+    }
 }
