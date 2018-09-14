@@ -66,7 +66,7 @@ public final class EurekaOneProperties {
      * <p>The default value is: <tt>true</tt></p>
      */
     public static final PropertyDefinition SELF_REGISTRATION = property("self-registration", BOOLEAN);
-    
+
     /**
      * <p>
      * Configuration key: <tt>use-metadata-for-host-and-port</tt>
@@ -96,7 +96,8 @@ public final class EurekaOneProperties {
      * The default value is: <tt>false</tt>
      * </p>
      */
-    public static final PropertyDefinition SKIP_EUREKA_REGISTRATION_VERIFICATION = property("skip-eureka-registration-verification", BOOLEAN);
+    public static final PropertyDefinition SKIP_EUREKA_REGISTRATION_VERIFICATION =
+            property("skip-eureka-registration-verification", BOOLEAN);
 
     /**
      * <p>Configuration key: <tt>namespace</tt></p>

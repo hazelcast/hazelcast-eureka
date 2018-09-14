@@ -69,10 +69,10 @@ public class EurekaOneDiscoveryStrategyFactory
     public static void setEurekaClient(EurekaClient eurekaClient) {
         EurekaOneDiscoveryStrategyFactory.eurekaClient = eurekaClient;
     }
-    
+
     /**
      * Set hazelcast cluster name.
-     * 
+     *
      * @param groupName
      *            hazelcast cluster name
      */

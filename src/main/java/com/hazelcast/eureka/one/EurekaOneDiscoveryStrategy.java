@@ -79,7 +79,7 @@ final class EurekaOneDiscoveryStrategy
             }
             return this;
         }
-        
+
         EurekaOneDiscoveryStrategyBuilder setGroupName(final String groupName) {
             this.groupName = groupName;
             return this;
@@ -149,7 +149,8 @@ final class EurekaOneDiscoveryStrategy
         this.namespace = getOrDefault(EUREKA_ONE_SYSTEM_PREFIX, NAMESPACE, "hazelcast");
         boolean selfRegistration = getOrDefault(EUREKA_ONE_SYSTEM_PREFIX, SELF_REGISTRATION, true);
         this.useMetadataForHostAndPort = getOrDefault(EUREKA_ONE_SYSTEM_PREFIX, USE_METADATA_FOR_HOST_AND_PORT, false);
-        this.skipEurekaRegistrationVerification = getOrDefault(EUREKA_ONE_SYSTEM_PREFIX, SKIP_EUREKA_REGISTRATION_VERIFICATION, false);
+        this.skipEurekaRegistrationVerification =
+                getOrDefault(EUREKA_ONE_SYSTEM_PREFIX, SKIP_EUREKA_REGISTRATION_VERIFICATION, false);
         this.useClasspathEurekaClientProps = getOrDefault(EUREKA_ONE_SYSTEM_PREFIX, USE_CLASSPATH_EUREKA_CLIENT_PROPS, true);
         this.groupName = builder.groupName != null ? builder.groupName : GroupConfig.DEFAULT_GROUP_NAME;
 
@@ -234,7 +235,7 @@ final class EurekaOneDiscoveryStrategy
             throw new IllegalStateException("Cannot build EurekaInstanceInfo", e);
         }
     }
-    
+
     private String getGroupNameFromMetadata(Map<String, String> metadata) {
         String groupName = GroupConfig.DEFAULT_GROUP_NAME;
         if (metadata.containsKey(EurekaHazelcastMetadata.HAZELCAST_GROUP_NAME)) {
