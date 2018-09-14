@@ -273,25 +273,34 @@ final class EurekaOneDiscoveryStrategy
                 @SuppressWarnings({"unchecked", "rawtypes"}) Map<String, Object> properties = (Map) metadata;
 
                 if (useMetadataForHostAndPort) {
-                    if (getGroupNameFromMetadata(metadata).equals(groupName)) {
-                        InetAddress address = mapAddress(instance);
-                        int port = mapPort(instance);
-                        if (address != null) {
-                            nodes.add(new SimpleDiscoveryNode(new Address(address, port), properties));
-                        }
-                    }
+                    addNodeUsingMetadata(nodes, instance, metadata, properties);
                 } else {
-                    InetAddress address = mapAddress(instance);
-                    if (null == address) {
-                        continue;
-                    }
-
-                    int port = instance.getPort();
-                    nodes.add(new SimpleDiscoveryNode(new Address(address, port), properties));
+                    addNode(nodes, instance, properties);
                 }
             }
         }
         return nodes;
+    }
+
+    private void addNodeUsingMetadata(List<DiscoveryNode> nodes, InstanceInfo instance, Map<String, String> metadata,
+            Map<String, Object> properties) {
+        if (getGroupNameFromMetadata(metadata).equals(groupName)) {
+            InetAddress address = mapAddress(instance);
+            int port = mapPort(instance);
+            if (address != null) {
+                nodes.add(new SimpleDiscoveryNode(new Address(address, port), properties));
+            }
+        }
+    }
+
+    private void addNode(List<DiscoveryNode> nodes, InstanceInfo instance, Map<String, Object> properties) {
+        InetAddress address = mapAddress(instance);
+        if (null == address) {
+            return;
+        }
+
+        int port = instance.getPort();
+        nodes.add(new SimpleDiscoveryNode(new Address(address, port), properties));
     }
 
     @Override
