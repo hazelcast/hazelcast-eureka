@@ -38,6 +38,7 @@
                     <properties>
                         <property name="self-registration">true</property>
                         <property name="namespace">hazelcast</property>
+                        <property name="use-metadata-for-host-and-port">false</property>
                     </properties>
                 </discovery-strategy>
             </discovery-strategies>

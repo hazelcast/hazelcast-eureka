@@ -68,6 +68,38 @@ public final class EurekaOneProperties {
     public static final PropertyDefinition SELF_REGISTRATION = property("self-registration", BOOLEAN);
 
     /**
+     * <p>
+     * Configuration key: <tt>use-metadata-for-host-and-port</tt>
+     * </p>
+     * <p>
+     * Defines if the Discovery SPI plugin will use Eureka metadata map to store host and port of Hazelcast
+     * instance, and when it looks for other nodes it will use the metadata as well.
+     * </p>
+     * <p>
+     * The default value is: <tt>false</tt>
+     * </p>
+     */
+    public static final PropertyDefinition USE_METADATA_FOR_HOST_AND_PORT = property("use-metadata-for-host-and-port", BOOLEAN);
+
+    /**
+     * <p>
+     * Configuration key: <tt>skip-eureka-registration-verification</tt>
+     * </p>
+     * <p>
+     * When first node starts, it takes some time to do self-registration with
+     * Eureka Server. Until Eureka data is updated it make no sense to verify
+     * registration. See
+     * https://github.com/Netflix/eureka/wiki/Understanding-eureka-client-server-communication#time-lag
+     * This option will speed up startup when starting first cluster node.
+     * </p>
+     * <p>
+     * The default value is: <tt>false</tt>
+     * </p>
+     */
+    public static final PropertyDefinition SKIP_EUREKA_REGISTRATION_VERIFICATION =
+            property("skip-eureka-registration-verification", BOOLEAN);
+
+    /**
      * <p>Configuration key: <tt>namespace</tt></p>
      * <p>Definition for providing different namespaces in order to not collide with other service registry clients in
      * eureka-client.properties file.</p>
@@ -78,7 +110,9 @@ public final class EurekaOneProperties {
     static final Collection<PropertyDefinition> HZ_PROPERTY_DEFINITIONS = Lists.newArrayList(
             USE_CLASSPATH_EUREKA_CLIENT_PROPS,
             SELF_REGISTRATION,
-            NAMESPACE
+            NAMESPACE,
+            USE_METADATA_FOR_HOST_AND_PORT,
+            SKIP_EUREKA_REGISTRATION_VERIFICATION
     );
 
     static final Collection<PropertyDefinition> EUREKA_CLIENT_PROPERTY_DEFINITIONS = Lists.newArrayList(

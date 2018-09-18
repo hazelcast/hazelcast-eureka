@@ -56,6 +56,8 @@ The following is an example declarative configuration.
                     <properties>
                        <property name="self-registration">true</property>
                        <property name="namespace">hazelcast</property>
+                       <property name="use-metadata-for-host-and-port">false</property>
+                       <property name="skip-eureka-registration-verification">false</property>
                     </properties>
                 </discovery-strategy>
             </discovery-strategies>
@@ -67,6 +69,12 @@ The following is an example declarative configuration.
 It is optional. Default value is `true`.
 * `namespace`: Definition for providing different namespaces in order not to collide with other service registry
   clients in eureka-client.properties file. It is optional. Default value is `hazelcast`.
+* `use-metadata-for-host-and-port`: Defines if the Discovery SPI plugin will use Eureka metadata map to store 
+host and port of Hazelcast instance, and when it looks for other nodes it will use the metadata as well. 
+Default value is `false`.
+* `skip-eureka-registration-verification`: When first node starts, it takes some time to do self-registration with 
+Eureka Server. Until Eureka data is updated it make no sense to verify registration. See 
+<a href="https://github.com/Netflix/eureka/wiki/Understanding-eureka-client-server-communication#time-lag" target="_blank">Time Lag</a>. This option will speed up startup when starting first cluster node. Default value is `false`.
 
 Below you can also find an example of Eureka client properties. 
 
@@ -183,10 +191,16 @@ If your application provides already configured `EurekaClient` instance e.g. if 
 ```
 EurekaClient eurekaClient = ...
 EurekaOneDiscoveryStrategyFactory.setEurekaClient(eurekaClient);
+EurekaOneDiscoveryStrategyFactory.setGroupName("dev"); // optional group name. Default is 'dev'.
 ```
 
-When using reused client as above, discovery implementation will **not** send Eureka Server any status changes regarding
-application state. Also, if you need to inject `Eureka client` externally, you have to configure discovery
+When `use-metadata-for-host-and-port` is `true` discovery implementation will use Eureka metadata map to store 
+host and port of Hazelcast instance.
+
+When using reused client as above and if `self-registration` is `true`, discovery implementation will send Eureka Server
+status changes regarding Hazelcast instance state. 
+
+Also, if you need to inject `Eureka client` externally, you have to configure discovery
 programmatically as shown above code snippet.
 
 ## Debugging

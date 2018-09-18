@@ -53,8 +53,16 @@ import static junit.framework.TestCase.assertNotNull;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.after;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class HazelcastClientTestCase extends HazelcastTestSupport {
 
@@ -231,19 +239,61 @@ public class HazelcastClientTestCase extends HazelcastTestSupport {
         when(eurekaClient.getApplicationInfoManager()).thenReturn(applicationInfoManager);
         when(eurekaClient.getApplication(anyString())).thenReturn(new Application(APP_NAME));
 
+        InstanceInfo instanceInfo = InstanceInfo.Builder.newBuilder().setAppName(APP_NAME).build();
+        when(applicationInfoManager.getInfo()).thenReturn(instanceInfo);
         when(applicationInfoManager.getEurekaInstanceConfig()).thenReturn(eurekaInstanceConfig);
         when(eurekaInstanceConfig.getAppname()).thenReturn(APP_NAME);
 
         // use provided EurekaClient
         EurekaOneDiscoveryStrategyFactory.setEurekaClient(eurekaClient);
+        EurekaOneDiscoveryStrategyFactory.setGroupName("dev");
 
-        HazelcastInstance hz1 = factory.newHazelcastInstance();
-        HazelcastInstance hz2 = factory.newHazelcastInstance();
+        Config config = new XmlConfigBuilder().build();
+        DiscoveryConfig discoveryConfig = config.getNetworkConfig().getJoin().getDiscoveryConfig();
+        DiscoveryStrategyConfig strategyConfig = discoveryConfig.getDiscoveryStrategyConfigs().iterator().next();
+        strategyConfig.addProperty("use-metadata-for-host-and-port", false);
+        
+        HazelcastInstance hz1 = factory.newHazelcastInstance(config);
+        HazelcastInstance hz2 = factory.newHazelcastInstance(config);
         
         verify(eurekaClient, times(2)).getApplicationInfoManager();
         verify(eurekaClient, times(2)).getApplication(APP_NAME);
-        verify(applicationInfoManager, never()).setInstanceStatus(InstanceStatus.UP);
-        verify(applicationInfoManager, never()).setInstanceStatus(any(InstanceStatus.class));
+        verify(applicationInfoManager, atLeastOnce()).setInstanceStatus(InstanceStatus.UP);
+
+        assertClusterSizeEventually(2, hz1);
+        assertClusterSizeEventually(2, hz2);
+    }
+
+    
+    @Test
+    public void testInstanceRegistrationUsingProvidedEurekaClientAndMetadata() {
+        EurekaClient eurekaClient = mock(EurekaClient.class);
+        ApplicationInfoManager applicationInfoManager = mock(ApplicationInfoManager.class);
+        EurekaInstanceConfig eurekaInstanceConfig = mock(EurekaInstanceConfig.class);
+
+        when(eurekaClient.getApplicationInfoManager()).thenReturn(applicationInfoManager);
+        when(eurekaClient.getApplication(anyString())).thenReturn(new Application(APP_NAME));
+
+        InstanceInfo instanceInfo = InstanceInfo.Builder.newBuilder().setAppName(APP_NAME).build();
+		when(applicationInfoManager.getInfo()).thenReturn(instanceInfo);
+        when(applicationInfoManager.getEurekaInstanceConfig()).thenReturn(eurekaInstanceConfig);
+        when(eurekaInstanceConfig.getAppname()).thenReturn(APP_NAME);
+
+        // use provided EurekaClient
+        EurekaOneDiscoveryStrategyFactory.setEurekaClient(eurekaClient);
+        EurekaOneDiscoveryStrategyFactory.setGroupName("dev");
+
+        Config config = new XmlConfigBuilder().build();
+        DiscoveryConfig discoveryConfig = config.getNetworkConfig().getJoin().getDiscoveryConfig();
+        DiscoveryStrategyConfig strategyConfig = discoveryConfig.getDiscoveryStrategyConfigs().iterator().next();
+        strategyConfig.addProperty("use-metadata-for-host-and-port", true);
+        
+        HazelcastInstance hz1 = factory.newHazelcastInstance(config);
+        HazelcastInstance hz2 = factory.newHazelcastInstance(config);
+        
+        verify(eurekaClient, times(2)).getApplicationInfoManager();
+        verify(eurekaClient, times(2)).getApplication(APP_NAME);
+        verify(applicationInfoManager, atLeastOnce()).setInstanceStatus(InstanceStatus.UP);
 
         assertClusterSizeEventually(2, hz1);
         assertClusterSizeEventually(2, hz2);

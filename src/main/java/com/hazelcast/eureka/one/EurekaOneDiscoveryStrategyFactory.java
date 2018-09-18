@@ -43,6 +43,7 @@ public class EurekaOneDiscoveryStrategyFactory
     }
 
     private static EurekaClient eurekaClient;
+    private static String groupName;
 
     public Class<? extends DiscoveryStrategy> getDiscoveryStrategyType() {
         return EurekaOneDiscoveryStrategy.class;
@@ -52,7 +53,7 @@ public class EurekaOneDiscoveryStrategyFactory
                                                   Map<String, Comparable> properties) {
         EurekaOneDiscoveryStrategyBuilder builder = new EurekaOneDiscoveryStrategyBuilder();
         builder.setDiscoveryNode(discoveryNode).setILogger(logger).setProperties(properties)
-                .setEurekaClient(eurekaClient);
+                .setEurekaClient(eurekaClient).setGroupName(groupName);
         return builder.build();
     }
 
@@ -67,5 +68,15 @@ public class EurekaOneDiscoveryStrategyFactory
      */
     public static void setEurekaClient(EurekaClient eurekaClient) {
         EurekaOneDiscoveryStrategyFactory.eurekaClient = eurekaClient;
+    }
+
+    /**
+     * Set hazelcast cluster name.
+     *
+     * @param groupName
+     *            hazelcast cluster name
+     */
+    public static void setGroupName(String groupName) {
+        EurekaOneDiscoveryStrategyFactory.groupName = groupName;
     }
 }
