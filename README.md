@@ -9,11 +9,11 @@
     * [Selecting Virtualization](#selecting-virtualization)
 
 ## Latest Release Version
-```$xml
+```xml
 <dependency>
   <groupId>com.hazelcast</groupId>
   <artifactId>hazelcast-eureka-one</artifactId>
-  <version>1.0.2</version>
+  <version>${hazelcast-eureka-version}</version>
 </dependency>
 ```
 
@@ -31,39 +31,27 @@ given example configurations assume available DNS resolution for Eureka server.
 ### Configuring Eureka Discovery for Hazelcast Cluster Members
 
 - Add the *hazelcast-eureka-one.jar* dependency to your project. 
-- Disable join over multicast, TCP/IP and AWS by setting the `enabled` attribute of the related tags to `false`.
-- Enable Discovery SPI by adding "hazelcast.discovery.enabled" property to your config.
+- Disable join over multicast by setting the `enabled` attribute of the related tags to `false`.
+- Enable `<eureka>` configuration
 - Add *eureka-client.properties* file to working directory or use `eureka.client.props` dynamic property to define 
 property file path without `properties` extension.
 
 The following is an example declarative configuration.
 
 ```xml
- <hazelcast>
-   ...
-    <properties>
-        <property name="hazelcast.discovery.enabled">true</property>
-    </properties>
-   
-    <network>
-      ...
-        <join>
-            <multicast enabled="false"/>
-            <tcp-ip enabled="false"/>
-            <aws enabled="false"/>
-            <discovery-strategies>
-                <discovery-strategy class="com.hazelcast.eureka.one.EurekaOneDiscoveryStrategy" enabled="true">
-                    <properties>
-                       <property name="self-registration">true</property>
-                       <property name="namespace">hazelcast</property>
-                       <property name="use-metadata-for-host-and-port">false</property>
-                       <property name="skip-eureka-registration-verification">false</property>
-                    </properties>
-                </discovery-strategy>
-            </discovery-strategies>
-          </join>
-      </network>
- </hazelcast>
+<hazelcast>
+  <network>
+    <join>
+      <multicast enabled="false"/>
+      <eureka enabled="true">
+        <self-registration>true</self-registration>
+        <namespace>hazelcast</namespace>
+        <use-metadata-for-host-and-port>false</use-metadata-for-host-and-port>
+        <skip-eureka-registration-verification>false</skip-eureka-registration-verification>
+      </eureka>
+    </join>
+  </network>
+</hazelcast>
 ```
 * `self-registration`: Defines if the Discovery SPI plugin will register itself with the Eureka 1 service discovery. 
 It is optional. Default value is `true`.
@@ -102,22 +90,22 @@ in the Hazelcast configuration will be ignored.
 The following is an example declarative configuration, equivalent to the example given above.
 
 ```xml
-<network>
-    ...
-    <discovery-strategies>
-        <discovery-strategy class="com.hazelcast.eureka.one.EurekaOneDiscoveryStrategy" enabled="true">
-            <properties>
-                <property name="self-registration">true</property>
-                <property name="namespace">hazelcast</property>
-                <property name="use-classpath-eureka-client-props">false</property>
-                <property name="shouldUseDns">false</property>
-                <property name="datacenter">cloud</property>
-                <property name="name">hazelcast-test</property>
-                <property name="serviceUrl.default">http://your-eureka-server-url</property>
-            </properties>
-        </discovery-strategy>
-    </discovery-strategies>
-</network>
+<hazelcast>
+  <network>
+    <join>
+      <multicast enabled="false"/>
+      <eureka enabled="true">
+        <self-registration>true</self-registration>
+        <namespace>hazelcast</namespace>
+        <use-classpath-eureka-client-props>false</use-classpath-eureka-client-props>
+        <shouldUseDns>false</shouldUseDns>
+        <datacenter>cloud</datacenter>
+        <name>hazelcast-test</name>
+        <serviceUrl.default>http://your-eureka-server-url</serviceUrl.default>
+      </eureka>
+    </join>
+  </network>
+</hazelcast>
 ```
 
 ### Configuring Eureka Discovery for Hazelcast Client
@@ -129,16 +117,13 @@ property file path without `properties` extension.
 The following is an example declarative configuration.
 
 ```xml
-<network>
-    ...
-    <discovery-strategies>
-        <discovery-strategy class="com.hazelcast.eureka.one.EurekaOneDiscoveryStrategy" enabled="true">
-            <properties>
-                <property name="namespace">hazelcast</property>
-            </properties>
-        </discovery-strategy>
-    </discovery-strategies>
-</network>
+<hazelcast-client>
+  <network>
+    <eureka enabled="true">
+      <namespace>hazelcast</namespace>
+    </eureka>
+  </network>
+</hazelcast-client>
 ```
 
 Below you can also find an example of Eureka client properties.
@@ -168,21 +153,18 @@ in the Hazelcast Client configuration will be ignored.
 The following is an example declarative configuration, equivalent to the example given above.
 
 ```xml
-<network>
-    ...
-    <discovery-strategies>
-        <discovery-strategy class="com.hazelcast.eureka.one.EurekaOneDiscoveryStrategy" enabled="true">
-            <properties>
-                <property name="namespace">hazelcast</property>
-                <property name="use-classpath-eureka-client-props">false</property>
-                <property name="shouldUseDns">false</property>
-                <property name="datacenter">cloud</property>
-                <property name="name">hazelcast-test</property>
-                <property name="serviceUrl.default">http://your-eureka-server-url/eureka/v2/</property>
-            </properties>
-        </discovery-strategy>
-    </discovery-strategies>
-</network>
+<hazelcast-client>
+  <network>
+    <eureka enabled="true">
+      <namespace>hazelcast</namespace>
+      <use-classpath-eureka-client-props>false</use-classpath-eureka-client-props>
+      <shouldUseDns>false</shouldUseDns>
+      <datacenter>cloud</datacenter>
+      <name>hazelcast-test</name>
+      <serviceUrl.default>http://your-eureka-server-url/eureka/v2/</serviceUrl.default>
+    </eureka>
+  </network>
+</hazelcast-client>
 ```
 
 #### Reusing existing Eureka Client instance
