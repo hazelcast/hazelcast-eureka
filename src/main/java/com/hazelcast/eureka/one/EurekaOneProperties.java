@@ -61,6 +61,15 @@ public final class EurekaOneProperties {
             property("use-classpath-eureka-client-props", BOOLEAN);
 
     /**
+     * <p>Configuration key: <tt>name</tt></p>
+     * <p>Defines the App Name.
+     * This is only used when <tt>use-classpath-eureka-client-props</tt> is <tt>false</tt>.</p>
+     * <p>The default value is: <tt>unknown</tt></p>
+     */
+    public static final PropertyDefinition NAME =
+            property("name", STRING);
+
+    /**
      * <p>Configuration key: <tt>self-registration</tt></p>
      * <p>Defines if the Discovery SPI plugin will register itself with the Eureka 1 service discovery.</p>
      * <p>The default value is: <tt>true</tt></p>
@@ -109,6 +118,7 @@ public final class EurekaOneProperties {
 
     static final Collection<PropertyDefinition> HZ_PROPERTY_DEFINITIONS = Lists.newArrayList(
             USE_CLASSPATH_EUREKA_CLIENT_PROPS,
+            NAME,
             SELF_REGISTRATION,
             NAMESPACE,
             USE_METADATA_FOR_HOST_AND_PORT,

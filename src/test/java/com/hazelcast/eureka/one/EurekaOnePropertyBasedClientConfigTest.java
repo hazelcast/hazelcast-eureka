@@ -59,5 +59,7 @@ public class EurekaOnePropertyBasedClientConfigTest extends AbstractEurekaOneDis
         assertThat(client.getEurekaClientConfig(), instanceOf(PropertyBasedEurekaClientConfig.class));
         assertThat(client.getEurekaClientConfig().getEurekaServerServiceUrls("default").get(0),
                 is(properties.get("serviceUrl.default")));
+        assertThat(client.getApplicationInfoManager().getEurekaInstanceConfig().getAppname(),
+                is(properties.get("name")));
     }
 }
