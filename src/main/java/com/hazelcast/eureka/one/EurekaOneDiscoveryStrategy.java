@@ -52,14 +52,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
-import static com.hazelcast.eureka.one.EurekaOneProperties.EUREKA_ONE_SYSTEM_PREFIX;
-import static com.hazelcast.eureka.one.EurekaOneProperties.HZ_PROPERTY_DEFINITIONS;
-import static com.hazelcast.eureka.one.EurekaOneProperties.NAMESPACE;
-import static com.hazelcast.eureka.one.EurekaOneProperties.SELF_REGISTRATION;
-import static com.hazelcast.eureka.one.EurekaOneProperties.SKIP_EUREKA_REGISTRATION_VERIFICATION;
-import static com.hazelcast.eureka.one.EurekaOneProperties.USE_CLASSPATH_EUREKA_CLIENT_PROPS;
-import static com.hazelcast.eureka.one.EurekaOneProperties.NAME;
-import static com.hazelcast.eureka.one.EurekaOneProperties.USE_METADATA_FOR_HOST_AND_PORT;
+import static com.hazelcast.eureka.one.EurekaOneProperties.*;
 
 final class EurekaOneDiscoveryStrategy
         extends AbstractDiscoveryStrategy {
@@ -231,7 +224,7 @@ final class EurekaOneDiscoveryStrategy
                 String key = String.format("%s.datacenter", this.namespace);
                 value = props.getProperty(key, "");
             } else {
-                value = String.valueOf(getProperties().get("datacenter"));
+                value = String.valueOf(getProperties().get(DATACENTER.key()));
             }
             if ("cloud".equals(value.trim().toLowerCase())) {
                 return new DelegatingInstanceConfig(new CloudInstanceConfig(this.namespace), localNode);
