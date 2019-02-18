@@ -132,7 +132,7 @@ clientConfig.getEurekaConfig().setEnabled(true)
             .setProperty("namespace", "hazelcast");
 ```
 
-**Note:** Hazelcast clients do not register themselves to Eureka server, therefore `self-registration` property is has no effect.
+**Note:** Hazelcast clients do not register themselves to Eureka server, therefore `self-registration` property has no effect.
 
 **Note:** The `eureka-client.properties` file and the `eureka.client.props` dynamic property mechanism work exactly the same as described in the Hazelcast Member Configuration.
 
