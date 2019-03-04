@@ -75,7 +75,7 @@ public class EurekaOneDiscoveryStrategyTest extends AbstractEurekaOneDiscoverySt
         InstanceInfo mockInfo = mock(InstanceInfo.class);
         when(mockInfo.getId()).thenReturn(RandomStringUtils.random(42));
         when(mockInfo.getStatus()).thenReturn(InstanceInfo.InstanceStatus.UP);
-        when(mockInfo.getIPAddr()).thenReturn("local");
+        when(mockInfo.getIPAddr()).thenReturn("..."); // invalid name / IP address
 
         application.addInstance(mockInfo);
 

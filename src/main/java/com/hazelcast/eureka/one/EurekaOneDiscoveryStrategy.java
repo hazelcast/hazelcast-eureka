@@ -396,10 +396,7 @@ final class EurekaOneDiscoveryStrategy
         private final String appname;
 
         private DelegatingInstanceConfig(EurekaInstanceConfig instanceConfig, DiscoveryNode localNode) {
-            this.instanceConfig = instanceConfig;
-            this.localNode = localNode;
-            this.uuid = UuidUtil.newSecureUuidString();
-            this.appname = instanceConfig.getAppname();
+            this(instanceConfig, localNode, instanceConfig.getAppname());
         }
 
         private DelegatingInstanceConfig(EurekaInstanceConfig instanceConfig, DiscoveryNode localNode, String appname) {
