@@ -52,7 +52,15 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
-import static com.hazelcast.eureka.one.EurekaOneProperties.*;
+import static com.hazelcast.eureka.one.EurekaOneProperties.DATACENTER;
+import static com.hazelcast.eureka.one.EurekaOneProperties.EUREKA_ONE_SYSTEM_PREFIX;
+import static com.hazelcast.eureka.one.EurekaOneProperties.HZ_PROPERTY_DEFINITIONS;
+import static com.hazelcast.eureka.one.EurekaOneProperties.NAME;
+import static com.hazelcast.eureka.one.EurekaOneProperties.NAMESPACE;
+import static com.hazelcast.eureka.one.EurekaOneProperties.SELF_REGISTRATION;
+import static com.hazelcast.eureka.one.EurekaOneProperties.SKIP_EUREKA_REGISTRATION_VERIFICATION;
+import static com.hazelcast.eureka.one.EurekaOneProperties.USE_CLASSPATH_EUREKA_CLIENT_PROPS;
+import static com.hazelcast.eureka.one.EurekaOneProperties.USE_METADATA_FOR_HOST_AND_PORT;
 
 final class EurekaOneDiscoveryStrategy
         extends AbstractDiscoveryStrategy {
@@ -232,9 +240,7 @@ final class EurekaOneDiscoveryStrategy
             if (this.useClasspathEurekaClientProps) {
                 return new DelegatingInstanceConfig(new MyDataCenterInstanceConfig(this.namespace), localNode);
             }
-            else {
-                return new DelegatingInstanceConfig(new MyDataCenterInstanceConfig(this.namespace), localNode, getAppname());
-            }
+            return new DelegatingInstanceConfig(new MyDataCenterInstanceConfig(this.namespace), localNode, getAppname());
         } catch (IOException e) {
             throw new IllegalStateException("Cannot build EurekaInstanceInfo", e);
         }
