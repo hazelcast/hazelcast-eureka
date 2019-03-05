@@ -52,8 +52,10 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
+import static com.hazelcast.eureka.one.EurekaOneProperties.DATACENTER;
 import static com.hazelcast.eureka.one.EurekaOneProperties.EUREKA_ONE_SYSTEM_PREFIX;
 import static com.hazelcast.eureka.one.EurekaOneProperties.HZ_PROPERTY_DEFINITIONS;
+import static com.hazelcast.eureka.one.EurekaOneProperties.NAME;
 import static com.hazelcast.eureka.one.EurekaOneProperties.NAMESPACE;
 import static com.hazelcast.eureka.one.EurekaOneProperties.SELF_REGISTRATION;
 import static com.hazelcast.eureka.one.EurekaOneProperties.SKIP_EUREKA_REGISTRATION_VERIFICATION;
@@ -184,6 +186,11 @@ final class EurekaOneDiscoveryStrategy
         }
     }
 
+    private String getAppname() {
+        Comparable name = this.getProperties().get(NAME.key());
+        return name == null ? "unknown" : name.toString();
+    }
+
     private Map<String, Object> getEurekaClientProperties(String namespace, Map<String, Comparable> properties) {
         Map<String, Object> result = new HashMap<String, Object>();
         for (Map.Entry<String, Comparable> e : properties.entrySet()) {
@@ -225,12 +232,15 @@ final class EurekaOneDiscoveryStrategy
                 String key = String.format("%s.datacenter", this.namespace);
                 value = props.getProperty(key, "");
             } else {
-                value = String.valueOf(getProperties().get("datacenter"));
+                value = String.valueOf(getProperties().get(DATACENTER.key()));
             }
             if ("cloud".equals(value.trim().toLowerCase())) {
                 return new DelegatingInstanceConfig(new CloudInstanceConfig(this.namespace), localNode);
             }
-            return new DelegatingInstanceConfig(new MyDataCenterInstanceConfig(this.namespace), localNode);
+            if (this.useClasspathEurekaClientProps) {
+                return new DelegatingInstanceConfig(new MyDataCenterInstanceConfig(this.namespace), localNode);
+            }
+            return new DelegatingInstanceConfig(new MyDataCenterInstanceConfig(this.namespace), localNode, getAppname());
         } catch (IOException e) {
             throw new IllegalStateException("Cannot build EurekaInstanceInfo", e);
         }
@@ -389,11 +399,17 @@ final class EurekaOneDiscoveryStrategy
         private final EurekaInstanceConfig instanceConfig;
         private final DiscoveryNode localNode;
         private final String uuid;
+        private final String appname;
 
         private DelegatingInstanceConfig(EurekaInstanceConfig instanceConfig, DiscoveryNode localNode) {
+            this(instanceConfig, localNode, instanceConfig.getAppname());
+        }
+
+        private DelegatingInstanceConfig(EurekaInstanceConfig instanceConfig, DiscoveryNode localNode, String appname) {
             this.instanceConfig = instanceConfig;
             this.localNode = localNode;
             this.uuid = UuidUtil.newSecureUuidString();
+            this.appname = appname;
         }
 
         public String getInstanceId() {
@@ -401,7 +417,7 @@ final class EurekaOneDiscoveryStrategy
         }
 
         public String getAppname() {
-            return instanceConfig.getAppname();
+            return appname;
         }
 
         public String getAppGroupName() {
