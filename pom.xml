@@ -3,7 +3,7 @@
 
     <groupId>com.hazelcast</groupId>
     <artifactId>hazelcast-eureka-one</artifactId>
-    <version>1.1.1</version>
+    <version>1.1.2-SNAPSHOT</version>
     <name>Eureka Discovery Plugin for Hazelcast</name>
     <description>Eureka Service Discovery for Hazelcast Discovery SPI</description>
     <packaging>jar</packaging>
