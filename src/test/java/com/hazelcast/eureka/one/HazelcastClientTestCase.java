@@ -64,6 +64,11 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+/**
+ * TODO: Fix this tests. They pretend to test Hazelcast Client with Eureka discovery, but
+ * that's not what they really do. One method tests Hazelcast Client with multicast and
+ * the others test Hazelcast member discovery (not Hazelcast Client!).
+ */
 public class HazelcastClientTestCase extends HazelcastTestSupport {
 
     private static final String APP_NAME = "hazelcast-test";

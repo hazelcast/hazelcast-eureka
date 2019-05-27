@@ -159,7 +159,7 @@ final class EurekaOneDiscoveryStrategy
         // override registration if requested
         if (!selfRegistration && !useMetadataForHostAndPort) {
             statusChangeStrategy = new NoopUpdater();
-        } else if (useMetadataForHostAndPort) {
+        } else if (useMetadataForHostAndPort && builder.discoveryNode != null) {
             statusChangeStrategy = new MetadataUpdater(builder.discoveryNode, selfRegistration, this.groupName);
         } else {
             this.statusChangeStrategy = builder.changeStrategy;
