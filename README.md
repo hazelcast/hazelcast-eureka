@@ -148,7 +148,9 @@ EurekaOneDiscoveryStrategyFactory.setGroupName("dev"); // optional group name. D
 
 Note that if you have Hazelcast embedded in your application and you want to use Eureka Service discovery for both the application itself and Hazelcast, by default they collide. You can solve this issue in one of the following manners:
 * use a separate `EurekaClient` for the application and a separate `EurekaClient` for Hazelcast
-* use the same `EurekaClient`, but set `use-metadata-for-host-and-port` property to `true` (it makes Hazelcast store its host/port in Eureka Metadata).
+* use the same `EurekaClient`, but set `use-metadata-for-host-and-port` property to `true` (it makes Hazelcast store its host/port in the Metadata for your Eureka application).
+
+Please note that If you use metadata to store cluster member addresses on Eureka application "hazelcast" then the discovery plugin will only find the host and port stored in the metadata for that app, not for any other Eureka app.
 
 Please check more in [Hazelcast Eureka Code Samples](https://github.com/hazelcast/hazelcast-code-samples/tree/master/hazelcast-integration/eureka/springboot-embedded).
 
