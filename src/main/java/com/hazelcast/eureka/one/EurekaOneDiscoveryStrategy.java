@@ -280,7 +280,7 @@ final class EurekaOneDiscoveryStrategy
                 }
 
                 Map<String, String> metadata = instance.getMetadata();
-                @SuppressWarnings({"unchecked", "rawtypes"}) Map<String, Object> properties = (Map) metadata;
+                @SuppressWarnings({"unchecked", "rawtypes"}) Map<String, String> properties = (Map) metadata;
 
                 if (useMetadataForHostAndPort) {
                     addNodeUsingMetadata(nodes, instance, metadata, properties);
@@ -293,7 +293,7 @@ final class EurekaOneDiscoveryStrategy
     }
 
     private void addNodeUsingMetadata(List<DiscoveryNode> nodes, InstanceInfo instance, Map<String, String> metadata,
-            Map<String, Object> properties) {
+            Map<String, String> properties) {
         if (getGroupNameFromMetadata(metadata).equals(groupName)) {
             InetAddress address = mapAddress(instance);
             int port = mapPort(instance);
@@ -303,7 +303,7 @@ final class EurekaOneDiscoveryStrategy
         }
     }
 
-    private void addNode(List<DiscoveryNode> nodes, InstanceInfo instance, Map<String, Object> properties) {
+    private void addNode(List<DiscoveryNode> nodes, InstanceInfo instance, Map<String, String> properties) {
         InetAddress address = mapAddress(instance);
         if (null == address) {
             return;

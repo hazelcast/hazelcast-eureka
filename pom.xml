@@ -14,8 +14,8 @@
         <main.basedir>${project.basedir}</main.basedir>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <jdk.version>1.6</jdk.version>
-        <hazelcast.version>3.9.3</hazelcast.version>
+        <jdk.version>1.8</jdk.version>
+        <hazelcast.version>4.0-SNAPSHOT</hazelcast.version>
         <eureka.client.version>1.8.6</eureka.client.version>
         <archaius.core>0.7.5</archaius.core>
 
