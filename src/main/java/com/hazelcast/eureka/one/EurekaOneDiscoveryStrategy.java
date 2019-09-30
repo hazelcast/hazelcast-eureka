@@ -17,7 +17,7 @@
 package com.hazelcast.eureka.one;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.hazelcast.config.GroupConfig;
+import com.hazelcast.config.Config;
 import com.hazelcast.config.properties.PropertyDefinition;
 import com.hazelcast.logging.ILogger;
 import com.hazelcast.logging.NoLogFactory;
@@ -25,7 +25,7 @@ import com.hazelcast.nio.Address;
 import com.hazelcast.spi.discovery.AbstractDiscoveryStrategy;
 import com.hazelcast.spi.discovery.DiscoveryNode;
 import com.hazelcast.spi.discovery.SimpleDiscoveryNode;
-import com.hazelcast.util.UuidUtil;
+import com.hazelcast.internal.util.UuidUtil;
 import com.netflix.appinfo.ApplicationInfoManager;
 import com.netflix.appinfo.CloudInstanceConfig;
 import com.netflix.appinfo.DataCenterInfo;
@@ -67,7 +67,7 @@ final class EurekaOneDiscoveryStrategy
 
     static final class EurekaOneDiscoveryStrategyBuilder {
         private EurekaClient eurekaClient;
-        private String groupName = GroupConfig.DEFAULT_GROUP_NAME;
+        private String groupName = Config.DEFAULT_CLUSTER_NAME;
         private ApplicationInfoManager applicationInfoManager;
         private DiscoveryNode discoveryNode;
         private ILogger logger = new NoLogFactory().getLogger(EurekaOneDiscoveryStrategy.class.getName());
@@ -154,7 +154,7 @@ final class EurekaOneDiscoveryStrategy
         this.skipEurekaRegistrationVerification =
                 getOrDefault(EUREKA_ONE_SYSTEM_PREFIX, SKIP_EUREKA_REGISTRATION_VERIFICATION, false);
         this.useClasspathEurekaClientProps = getOrDefault(EUREKA_ONE_SYSTEM_PREFIX, USE_CLASSPATH_EUREKA_CLIENT_PROPS, true);
-        this.groupName = builder.groupName != null ? builder.groupName : GroupConfig.DEFAULT_GROUP_NAME;
+        this.groupName = builder.groupName != null ? builder.groupName : Config.DEFAULT_CLUSTER_NAME;
 
         // override registration if requested
         if (!selfRegistration && !useMetadataForHostAndPort) {
@@ -247,7 +247,7 @@ final class EurekaOneDiscoveryStrategy
     }
 
     private String getGroupNameFromMetadata(Map<String, String> metadata) {
-        String groupName = GroupConfig.DEFAULT_GROUP_NAME;
+        String groupName = Config.DEFAULT_CLUSTER_NAME;
         if (metadata.containsKey(EurekaHazelcastMetadata.HAZELCAST_GROUP_NAME)) {
             groupName = metadata.get(EurekaHazelcastMetadata.HAZELCAST_GROUP_NAME);
         }
