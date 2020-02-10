@@ -21,7 +21,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import com.google.common.collect.Maps;
 import com.hazelcast.eureka.one.EurekaOneDiscoveryStrategy.EurekaOneDiscoveryStrategyBuilder;
-import com.hazelcast.nio.Address;
+import com.hazelcast.cluster.Address;
 import com.hazelcast.spi.discovery.DiscoveryNode;
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.discovery.shared.Application;

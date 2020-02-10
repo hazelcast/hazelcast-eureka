@@ -1,31 +1,30 @@
 /*
- * Copyright (c) 2008-2017, Hazelcast, Inc. All Rights Reserved.
+ * Copyright 2020 Hazelcast Inc.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Hazelcast Community License (the "License"); you may not use
+ * this file except in compliance with the License. You may obtain a copy of the
+ * License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * http://hazelcast.com/hazelcast-community-license
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 
 package com.hazelcast.eureka.one;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.hazelcast.config.GroupConfig;
+import com.hazelcast.config.Config;
 import com.hazelcast.config.properties.PropertyDefinition;
 import com.hazelcast.logging.ILogger;
 import com.hazelcast.logging.NoLogFactory;
-import com.hazelcast.nio.Address;
+import com.hazelcast.cluster.Address;
 import com.hazelcast.spi.discovery.AbstractDiscoveryStrategy;
 import com.hazelcast.spi.discovery.DiscoveryNode;
 import com.hazelcast.spi.discovery.SimpleDiscoveryNode;
-import com.hazelcast.util.UuidUtil;
+import com.hazelcast.internal.util.UuidUtil;
 import com.netflix.appinfo.ApplicationInfoManager;
 import com.netflix.appinfo.CloudInstanceConfig;
 import com.netflix.appinfo.DataCenterInfo;
@@ -67,7 +66,7 @@ final class EurekaOneDiscoveryStrategy
 
     static final class EurekaOneDiscoveryStrategyBuilder {
         private EurekaClient eurekaClient;
-        private String groupName = GroupConfig.DEFAULT_GROUP_NAME;
+        private String groupName = Config.DEFAULT_CLUSTER_NAME;
         private ApplicationInfoManager applicationInfoManager;
         private DiscoveryNode discoveryNode;
         private ILogger logger = new NoLogFactory().getLogger(EurekaOneDiscoveryStrategy.class.getName());
@@ -154,7 +153,7 @@ final class EurekaOneDiscoveryStrategy
         this.skipEurekaRegistrationVerification =
                 getOrDefault(EUREKA_ONE_SYSTEM_PREFIX, SKIP_EUREKA_REGISTRATION_VERIFICATION, false);
         this.useClasspathEurekaClientProps = getOrDefault(EUREKA_ONE_SYSTEM_PREFIX, USE_CLASSPATH_EUREKA_CLIENT_PROPS, true);
-        this.groupName = builder.groupName != null ? builder.groupName : GroupConfig.DEFAULT_GROUP_NAME;
+        this.groupName = builder.groupName != null ? builder.groupName : Config.DEFAULT_CLUSTER_NAME;
 
         // override registration if requested
         if (!selfRegistration && !useMetadataForHostAndPort) {
@@ -247,7 +246,7 @@ final class EurekaOneDiscoveryStrategy
     }
 
     private String getGroupNameFromMetadata(Map<String, String> metadata) {
-        String groupName = GroupConfig.DEFAULT_GROUP_NAME;
+        String groupName = Config.DEFAULT_CLUSTER_NAME;
         if (metadata.containsKey(EurekaHazelcastMetadata.HAZELCAST_GROUP_NAME)) {
             groupName = metadata.get(EurekaHazelcastMetadata.HAZELCAST_GROUP_NAME);
         }
@@ -280,7 +279,7 @@ final class EurekaOneDiscoveryStrategy
                 }
 
                 Map<String, String> metadata = instance.getMetadata();
-                @SuppressWarnings({"unchecked", "rawtypes"}) Map<String, Object> properties = (Map) metadata;
+                @SuppressWarnings({"unchecked", "rawtypes"}) Map<String, String> properties = (Map) metadata;
 
                 if (useMetadataForHostAndPort) {
                     addNodeUsingMetadata(nodes, instance, metadata, properties);
@@ -293,7 +292,7 @@ final class EurekaOneDiscoveryStrategy
     }
 
     private void addNodeUsingMetadata(List<DiscoveryNode> nodes, InstanceInfo instance, Map<String, String> metadata,
-            Map<String, Object> properties) {
+            Map<String, String> properties) {
         if (getGroupNameFromMetadata(metadata).equals(groupName)) {
             InetAddress address = mapAddress(instance);
             int port = mapPort(instance);
@@ -303,7 +302,7 @@ final class EurekaOneDiscoveryStrategy
         }
     }
 
-    private void addNode(List<DiscoveryNode> nodes, InstanceInfo instance, Map<String, Object> properties) {
+    private void addNode(List<DiscoveryNode> nodes, InstanceInfo instance, Map<String, String> properties) {
         InetAddress address = mapAddress(instance);
         if (null == address) {
             return;
