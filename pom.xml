@@ -140,6 +140,12 @@
             <groupId>com.netflix.eureka</groupId>
             <artifactId>eureka-client</artifactId>
             <version>${eureka.client.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.github.vlsi.compactmap</groupId>
+                    <artifactId>compactmap</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.netflix.archaius</groupId>
