@@ -35,9 +35,9 @@ public final class EurekaOneProperties {
 
     /**
      * <p>Configuration System Environment Prefix: <tt>hazelcast.eurekaone.</tt></p>
-     * Defines the prefix for system environment variables and JVM command line parameters.<br/>
+     * Defines the prefix for system environment variables and JVM command line parameters.
      * Defining or overriding properties as JVM parameters or using the system environment, those
-     * properties need to be prefixed to prevent collision on property names.<br/>
+     * properties need to be prefixed to prevent collision on property names.
      * Example: {@link #SELF_REGISTRATION} will be:
      * <pre>
      *     -Dhazelcast.eurekaone.self-registration=value
