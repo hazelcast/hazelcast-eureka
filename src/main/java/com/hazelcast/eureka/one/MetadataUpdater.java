@@ -22,16 +22,13 @@ import com.hazelcast.spi.discovery.DiscoveryNode;
 import com.netflix.appinfo.ApplicationInfoManager;
 import com.netflix.appinfo.InstanceInfo;
 
-/**
- *
- */
 class MetadataUpdater implements StatusChangeStrategy {
 
     private DiscoveryNode discoveryNode;
     private boolean selfRegistration;
     private String groupName;
 
-    public MetadataUpdater(DiscoveryNode discoveryNode, boolean selfRegistration, String groupName) {
+    MetadataUpdater(DiscoveryNode discoveryNode, boolean selfRegistration, String groupName) {
         Preconditions.checkNotNull(discoveryNode);
         Preconditions.checkNotNull(groupName);
 

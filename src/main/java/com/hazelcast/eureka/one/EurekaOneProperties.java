@@ -15,17 +15,60 @@
 
 package com.hazelcast.eureka.one;
 
-import java.util.Collection;
-
 import com.google.common.collect.Lists;
 import com.hazelcast.config.properties.PropertyDefinition;
 import com.hazelcast.config.properties.PropertyTypeConverter;
 import com.hazelcast.config.properties.SimplePropertyDefinition;
 import com.hazelcast.core.TypeConverter;
 
+import java.util.Collection;
+
 import static com.hazelcast.config.properties.PropertyTypeConverter.BOOLEAN;
 import static com.hazelcast.config.properties.PropertyTypeConverter.STRING;
-import static com.hazelcast.eureka.one.PropertyBasedEurekaClientConfigConstants.*;
+import static com.hazelcast.eureka.one.PropertyBasedEurekaClientConfigConstants.BACKUP_REGISTRY_CLASSNAME_KEY;
+import static com.hazelcast.eureka.one.PropertyBasedEurekaClientConfigConstants.CACHEREFRESH_BACKOFF_BOUND_KEY;
+import static com.hazelcast.eureka.one.PropertyBasedEurekaClientConfigConstants.CACHEREFRESH_THREADPOOL_SIZE_KEY;
+import static com.hazelcast.eureka.one.PropertyBasedEurekaClientConfigConstants.CLIENT_DATA_ACCEPT_KEY;
+import static com.hazelcast.eureka.one.PropertyBasedEurekaClientConfigConstants.CLIENT_DECODER_NAME_KEY;
+import static com.hazelcast.eureka.one.PropertyBasedEurekaClientConfigConstants.CLIENT_ENCODER_NAME_KEY;
+import static com.hazelcast.eureka.one.PropertyBasedEurekaClientConfigConstants.CLIENT_REGION_FALLBACK_KEY;
+import static com.hazelcast.eureka.one.PropertyBasedEurekaClientConfigConstants.CLIENT_REGION_KEY;
+import static com.hazelcast.eureka.one.PropertyBasedEurekaClientConfigConstants.CONFIG_DOLLAR_REPLACEMENT_KEY;
+import static com.hazelcast.eureka.one.PropertyBasedEurekaClientConfigConstants.CONFIG_ESCAPE_CHAR_REPLACEMENT_KEY;
+import static com.hazelcast.eureka.one.PropertyBasedEurekaClientConfigConstants.CONFIG_EUREKA_SERVER_SERVICE_URL_PREFIX;
+import static com.hazelcast.eureka.one.PropertyBasedEurekaClientConfigConstants.EUREKA_SERVER_CONNECTION_IDLE_TIMEOUT_KEY;
+import static com.hazelcast.eureka.one.PropertyBasedEurekaClientConfigConstants.EUREKA_SERVER_CONNECT_TIMEOUT_KEY;
+import static com.hazelcast.eureka.one.PropertyBasedEurekaClientConfigConstants.EUREKA_SERVER_DNS_NAME_KEY;
+import static com.hazelcast.eureka.one.PropertyBasedEurekaClientConfigConstants.EUREKA_SERVER_FALLBACK_DNS_NAME_KEY;
+import static com.hazelcast.eureka.one.PropertyBasedEurekaClientConfigConstants.EUREKA_SERVER_FALLBACK_PORT_KEY;
+import static com.hazelcast.eureka.one.PropertyBasedEurekaClientConfigConstants.EUREKA_SERVER_FALLBACK_URL_CONTEXT_KEY;
+import static com.hazelcast.eureka.one.PropertyBasedEurekaClientConfigConstants.EUREKA_SERVER_GZIP_CONTENT_KEY;
+import static com.hazelcast.eureka.one.PropertyBasedEurekaClientConfigConstants.EUREKA_SERVER_MAX_CONNECTIONS_KEY;
+import static com.hazelcast.eureka.one.PropertyBasedEurekaClientConfigConstants.EUREKA_SERVER_MAX_CONNECTIONS_PER_HOST_KEY;
+import static com.hazelcast.eureka.one.PropertyBasedEurekaClientConfigConstants.EUREKA_SERVER_PORT_KEY;
+import static com.hazelcast.eureka.one.PropertyBasedEurekaClientConfigConstants.EUREKA_SERVER_PROXY_HOST_KEY;
+import static com.hazelcast.eureka.one.PropertyBasedEurekaClientConfigConstants.EUREKA_SERVER_PROXY_PASSWORD_KEY;
+import static com.hazelcast.eureka.one.PropertyBasedEurekaClientConfigConstants.EUREKA_SERVER_PROXY_PORT_KEY;
+import static com.hazelcast.eureka.one.PropertyBasedEurekaClientConfigConstants.EUREKA_SERVER_PROXY_USERNAME_KEY;
+import static com.hazelcast.eureka.one.PropertyBasedEurekaClientConfigConstants.EUREKA_SERVER_READ_TIMEOUT_KEY;
+import static com.hazelcast.eureka.one.PropertyBasedEurekaClientConfigConstants.EUREKA_SERVER_URL_CONTEXT_KEY;
+import static com.hazelcast.eureka.one.PropertyBasedEurekaClientConfigConstants.EUREKA_SERVER_URL_POLL_INTERVAL_KEY;
+import static com.hazelcast.eureka.one.PropertyBasedEurekaClientConfigConstants.FETCH_REGISTRY_ENABLED_KEY;
+import static com.hazelcast.eureka.one.PropertyBasedEurekaClientConfigConstants.FETCH_SINGLE_VIP_ONLY_KEY;
+import static com.hazelcast.eureka.one.PropertyBasedEurekaClientConfigConstants.HEARTBEAT_BACKOFF_BOUND_KEY;
+import static com.hazelcast.eureka.one.PropertyBasedEurekaClientConfigConstants.HEARTBEAT_THREADPOOL_SIZE_KEY;
+import static com.hazelcast.eureka.one.PropertyBasedEurekaClientConfigConstants.INITIAL_REGISTRATION_REPLICATION_DELAY_KEY;
+import static com.hazelcast.eureka.one.PropertyBasedEurekaClientConfigConstants.REGISTRATION_ENABLED_KEY;
+import static com.hazelcast.eureka.one.PropertyBasedEurekaClientConfigConstants.REGISTRATION_REPLICATION_INTERVAL_KEY;
+import static com.hazelcast.eureka.one.PropertyBasedEurekaClientConfigConstants.REGISTRY_REFRESH_INTERVAL_KEY;
+import static com.hazelcast.eureka.one.PropertyBasedEurekaClientConfigConstants.SHOULD_ALLOW_REDIRECTS_KEY;
+import static com.hazelcast.eureka.one.PropertyBasedEurekaClientConfigConstants.SHOULD_DISABLE_DELTA_KEY;
+import static com.hazelcast.eureka.one.PropertyBasedEurekaClientConfigConstants.SHOULD_FETCH_REMOTE_REGION_KEY;
+import static com.hazelcast.eureka.one.PropertyBasedEurekaClientConfigConstants.SHOULD_FILTER_ONLY_UP_INSTANCES_KEY;
+import static com.hazelcast.eureka.one.PropertyBasedEurekaClientConfigConstants.SHOULD_LOG_DELTA_DIFF_KEY;
+import static com.hazelcast.eureka.one.PropertyBasedEurekaClientConfigConstants.SHOULD_ONDEMAND_UPDATE_STATUS_KEY;
+import static com.hazelcast.eureka.one.PropertyBasedEurekaClientConfigConstants.SHOULD_PREFER_SAME_ZONE_SERVER_KEY;
+import static com.hazelcast.eureka.one.PropertyBasedEurekaClientConfigConstants.SHOULD_USE_DNS_KEY;
 
 /**
  * <p>Configuration class of the Hazelcast Discovery Plugin for <a href="https://github.com/Netflix/eureka">Eureka 1</a>.</p>
