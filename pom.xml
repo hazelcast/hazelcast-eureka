@@ -43,7 +43,7 @@
         <jetty.version>6.1.26</jetty.version>
         <javax.inject.version>1</javax.inject.version>
         <guava.version>30.0-jre</guava.version>
-        <xstream.version>1.4.14</xstream.version>
+        <xstream.version>1.4.14-jdk7</xstream.version>
 
         <maven.source.plugin.version>3.2.1</maven.source.plugin.version>
         <maven.surefire.plugin.version>2.22.2</maven.surefire.plugin.version>
