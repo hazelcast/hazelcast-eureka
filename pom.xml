@@ -45,7 +45,7 @@
         <guava.version>30.1.1-jre</guava.version>
         <xstream.version>1.4.18</xstream.version>
         <jackson.version>2.12.5</jackson.version>
-        <jackson.databind.version>2.12.5</jackson.databind.version>
+        <jackson.databind.version>2.13.1</jackson.databind.version>
         <httpclient.version>4.5.13</httpclient.version>
 
         <maven.source.plugin.version>3.2.1</maven.source.plugin.version>
