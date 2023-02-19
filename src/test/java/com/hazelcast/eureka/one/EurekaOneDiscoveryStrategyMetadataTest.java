@@ -15,31 +15,26 @@
 
 package com.hazelcast.eureka.one;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.util.HashMap;
-import java.util.Map;
-
+import com.google.common.collect.Maps;
+import com.hazelcast.cluster.Address;
+import com.hazelcast.eureka.one.EurekaOneDiscoveryStrategy.EurekaOneDiscoveryStrategyBuilder;
+import com.hazelcast.spi.discovery.DiscoveryNode;
+import com.netflix.appinfo.InstanceInfo;
+import com.netflix.discovery.shared.Application;
 import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
-import com.google.common.collect.Maps;
-import com.hazelcast.eureka.one.EurekaOneDiscoveryStrategy.EurekaOneDiscoveryStrategyBuilder;
-import com.hazelcast.cluster.Address;
-import com.hazelcast.spi.discovery.DiscoveryNode;
-import com.netflix.appinfo.InstanceInfo;
-import com.netflix.discovery.shared.Application;
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EurekaOneDiscoveryStrategyMetadataTest extends AbstractEurekaOneDiscoveryStrategyTest {
@@ -71,7 +66,7 @@ public class EurekaOneDiscoveryStrategyMetadataTest extends AbstractEurekaOneDis
         when(mockInfo.getStatus()).thenReturn(InstanceInfo.InstanceStatus.UP);
         when(mockInfo.getIPAddr()).thenReturn("local");
         
-        Map<String, String> metadata = new HashMap<String, String>();
+        Map<String, String> metadata = new HashMap<>();
         metadata.put(EurekaHazelcastMetadata.HAZELCAST_HOST, "127.0.0.1");
         metadata.put(EurekaHazelcastMetadata.HAZELCAST_PORT, "5777");
         metadata.put(EurekaHazelcastMetadata.HAZELCAST_GROUP_NAME, "my-custom-group");
@@ -101,7 +96,7 @@ public class EurekaOneDiscoveryStrategyMetadataTest extends AbstractEurekaOneDis
         when(mockInfo.getStatus()).thenReturn(InstanceInfo.InstanceStatus.UP);
         when(mockInfo.getIPAddr()).thenReturn("local");
         
-        Map<String, String> metadata = new HashMap<String, String>();
+        Map<String, String> metadata = new HashMap<>();
         metadata.put(EurekaHazelcastMetadata.HAZELCAST_HOST, "127.0.0.1");
         metadata.put(EurekaHazelcastMetadata.HAZELCAST_PORT, "5777");
         metadata.put(EurekaHazelcastMetadata.HAZELCAST_GROUP_NAME, "my-different-group");

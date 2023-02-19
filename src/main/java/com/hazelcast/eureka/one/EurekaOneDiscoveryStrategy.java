@@ -38,6 +38,7 @@ import com.netflix.discovery.DiscoveryClient;
 import com.netflix.discovery.EurekaClient;
 import com.netflix.discovery.EurekaClientConfig;
 import com.netflix.discovery.shared.Application;
+import com.netflix.discovery.shared.transport.jersey3.Jersey3TransportClientFactories;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -179,7 +180,7 @@ final class EurekaOneDiscoveryStrategy
                         this.namespace,
                         getEurekaClientProperties(this.namespace, this.getProperties()));
             }
-            this.eurekaClient = new DiscoveryClient(applicationInfoManager, eurekaClientConfig);
+            this.eurekaClient = new DiscoveryClient(applicationInfoManager, eurekaClientConfig, Jersey3TransportClientFactories.getInstance());
         } else {
             this.eurekaClient = builder.eurekaClient;
         }
@@ -191,7 +192,7 @@ final class EurekaOneDiscoveryStrategy
     }
 
     private Map<String, Object> getEurekaClientProperties(String namespace, Map<String, Comparable> properties) {
-        Map<String, Object> result = new HashMap<String, Object>();
+        Map<String, Object> result = new HashMap<>();
         for (Map.Entry<String, Comparable> e : properties.entrySet()) {
             result.put(namespace + "." + e.getKey(), e.getValue());
         }
@@ -254,7 +255,7 @@ final class EurekaOneDiscoveryStrategy
     }
 
     public Iterable<DiscoveryNode> discoverNodes() {
-        List<DiscoveryNode> nodes = new ArrayList<DiscoveryNode>();
+        List<DiscoveryNode> nodes = new ArrayList<>();
         String applicationName = applicationInfoManager.getEurekaInstanceConfig().getAppname();
 
         Application application = null;
@@ -279,7 +280,7 @@ final class EurekaOneDiscoveryStrategy
                 }
 
                 Map<String, String> metadata = instance.getMetadata();
-                @SuppressWarnings({"unchecked", "rawtypes"}) Map<String, String> properties = (Map) metadata;
+                @SuppressWarnings({"unchecked", "rawtypes"}) Map<String, String> properties = metadata;
 
                 if (useMetadataForHostAndPort) {
                     addNodeUsingMetadata(nodes, instance, metadata, properties);
