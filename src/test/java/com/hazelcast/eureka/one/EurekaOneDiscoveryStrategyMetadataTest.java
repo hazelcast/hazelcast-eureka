@@ -64,7 +64,7 @@ public class EurekaOneDiscoveryStrategyMetadataTest extends AbstractEurekaOneDis
         InstanceInfo mockInfo = mock(InstanceInfo.class);
         when(mockInfo.getId()).thenReturn(RandomStringUtils.random(42));
         when(mockInfo.getStatus()).thenReturn(InstanceInfo.InstanceStatus.UP);
-        when(mockInfo.getIPAddr()).thenReturn("local");
+        //UnnecessaryStubbingException: when(mockInfo.getIPAddr()).thenReturn("local");
         
         Map<String, String> metadata = new HashMap<>();
         metadata.put(EurekaHazelcastMetadata.HAZELCAST_HOST, "127.0.0.1");
@@ -94,7 +94,7 @@ public class EurekaOneDiscoveryStrategyMetadataTest extends AbstractEurekaOneDis
         InstanceInfo mockInfo = mock(InstanceInfo.class);
         when(mockInfo.getId()).thenReturn(RandomStringUtils.random(42));
         when(mockInfo.getStatus()).thenReturn(InstanceInfo.InstanceStatus.UP);
-        when(mockInfo.getIPAddr()).thenReturn("local");
+        //UnnecessaryStubbingException: when(mockInfo.getIPAddr()).thenReturn("local");
         
         Map<String, String> metadata = new HashMap<>();
         metadata.put(EurekaHazelcastMetadata.HAZELCAST_HOST, "127.0.0.1");
@@ -117,9 +117,9 @@ public class EurekaOneDiscoveryStrategyMetadataTest extends AbstractEurekaOneDis
     @Test
     public void shouldUpdateMetadata() throws Exception{
         InstanceInfo instanceInfo = mock(InstanceInfo.class);
-        when(instanceInfo.getId()).thenReturn(RandomStringUtils.random(42));
-        when(instanceInfo.getStatus()).thenReturn(InstanceInfo.InstanceStatus.UP);
-        when(instanceInfo.getIPAddr()).thenReturn("local");
+        //UnnecessaryStubbingException: when(instanceInfo.getId()).thenReturn(RandomStringUtils.random(42));
+        //UnnecessaryStubbingException: when(instanceInfo.getStatus()).thenReturn(InstanceInfo.InstanceStatus.UP);
+        //UnnecessaryStubbingException: when(instanceInfo.getIPAddr()).thenReturn("local");
         
         @SuppressWarnings("unchecked")
         Map<String, String> metadata = mock(HashMap.class);
@@ -141,9 +141,9 @@ public class EurekaOneDiscoveryStrategyMetadataTest extends AbstractEurekaOneDis
     @Test
     public void shouldRegisterAndUpdateMetadata() throws Exception{
         InstanceInfo instanceInfo = mock(InstanceInfo.class);
-        when(instanceInfo.getId()).thenReturn(RandomStringUtils.random(42));
-        when(instanceInfo.getStatus()).thenReturn(InstanceInfo.InstanceStatus.UP);
-        when(instanceInfo.getIPAddr()).thenReturn("local");
+        //UnnecessaryStubbingException: when(instanceInfo.getId()).thenReturn(RandomStringUtils.random(42));
+        //UnnecessaryStubbingException: when(instanceInfo.getStatus()).thenReturn(InstanceInfo.InstanceStatus.UP);
+        //UnnecessaryStubbingException: when(instanceInfo.getIPAddr()).thenReturn("local");
 
         @SuppressWarnings("unchecked")
         Map<String, String> metadata = mock(HashMap.class);

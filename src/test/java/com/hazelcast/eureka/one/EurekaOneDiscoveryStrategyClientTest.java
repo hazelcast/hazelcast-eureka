@@ -49,8 +49,7 @@ public class EurekaOneDiscoveryStrategyClientTest extends AbstractEurekaOneDisco
 
     @Test
     public void shouldNotDeregisterWhenDestroyed(){
-        when(eurekaClient.getApplication(APPLICATION_NAME))
-                .thenReturn(new Application());
+        //UnnecessaryStubbingException: when(eurekaClient.getApplication(APPLICATION_NAME)).thenReturn(new Application());
 
         strategy.destroy();
 
