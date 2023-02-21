@@ -38,18 +38,14 @@ import com.netflix.discovery.DiscoveryClient;
 import com.netflix.discovery.EurekaClient;
 import com.netflix.discovery.EurekaClientConfig;
 import com.netflix.discovery.shared.Application;
+import com.netflix.discovery.shared.transport.jersey.TransportClientFactories;
 import com.netflix.discovery.shared.transport.jersey3.Jersey3TransportClientFactories;
 
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URL;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import static com.hazelcast.eureka.one.EurekaOneProperties.DATACENTER;
@@ -67,6 +63,7 @@ final class EurekaOneDiscoveryStrategy
 
     static final class EurekaOneDiscoveryStrategyBuilder {
         private EurekaClient eurekaClient;
+        private TransportClientFactories clientFactories;
         private String groupName = Config.DEFAULT_CLUSTER_NAME;
         private ApplicationInfoManager applicationInfoManager;
         private DiscoveryNode discoveryNode;
@@ -79,6 +76,11 @@ final class EurekaOneDiscoveryStrategy
             if (eurekaClient != null) {
                 this.applicationInfoManager = eurekaClient.getApplicationInfoManager();
             }
+            return this;
+        }
+
+        EurekaOneDiscoveryStrategyBuilder setTransportClientFactories(final TransportClientFactories clientFactories) {
+            this.clientFactories = clientFactories;
             return this;
         }
 
@@ -180,7 +182,8 @@ final class EurekaOneDiscoveryStrategy
                         this.namespace,
                         getEurekaClientProperties(this.namespace, this.getProperties()));
             }
-            this.eurekaClient = new DiscoveryClient(applicationInfoManager, eurekaClientConfig, Jersey3TransportClientFactories.getInstance());
+            this.eurekaClient = new DiscoveryClient(applicationInfoManager, eurekaClientConfig,
+                    Objects.requireNonNullElse(builder.clientFactories, Jersey3TransportClientFactories.getInstance()));
         } else {
             this.eurekaClient = builder.eurekaClient;
         }
