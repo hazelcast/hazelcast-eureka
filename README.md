@@ -2,7 +2,7 @@
 
 This repository contains a plugin which provides the automatic Hazelcast member discovery using Eureka Service Registry.
 
-***NOTE:*** *hazelcast-eureka-one 2.0+* is compatible with *hazelcast 4.0+*, for older hazelcast versions you need to use *hazelcast-eureka-one 1.1.x*.
+***NOTE:*** *hazelcast-eureka-two* 3.x is compatible with *Eureka 2.x* and *Hazelcast 5.x*, for older hazelcast versions you need to use [eureka-one](/hazelcast/hazelcast-eureka/tree/eureka-one) branch.
 
 ## Embedded mode
 
@@ -13,7 +13,7 @@ To use Hazelcast embedded in your application, you need to add the plugin depend
 ```xml
 <dependency>
   <groupId>com.hazelcast</groupId>
-  <artifactId>hazelcast-eureka-one</artifactId>
+  <artifactId>hazelcast-eureka-two</artifactId>
   <version>${hazelcast-eureka-version}</version>
 </dependency>
 ```
@@ -21,13 +21,13 @@ To use Hazelcast embedded in your application, you need to add the plugin depend
 #### Gradle
 
 ```groovy
-compile group: "com.hazelcast", name: "hazelcast-eureka-one", version: "${hazelcast-eureka-version}"
+compile group: "com.hazelcast", name: "hazelcast-eureka-two", version: "${hazelcast-eureka-version}"
 ```
 
 ## Configuration
 
 Make sure you have:
-* `hazelcast-eureka-one.jar` in your classpath
+* `hazelcast-eureka-two.jar` in your classpath
 * Hazelcast configuration (`hazelcast.xml` or Java-based configuration)
 * Eureka client configuration (`eureka-client.properties` file or `eureka.client.props` dynamic property in the Hazelcast configuration)
 
@@ -108,7 +108,7 @@ The following is an example declarative configuration, equivalent to the example
 ## Hazelcast Client Configuration
 
 Configuring Hazelcast Client follows exactly the same steps as configuring Hazelcast member, so you need to have:
-* `hazelcast-eureka-one.jar` in your classpath
+* `hazelcast-eureka-two.jar` in your classpath
 * Hazelcast client configuration (`hazelcast-client.xml` or Java-based configuration)
 * Eureka client configuration (`eureka-client.properties` file or `eureka.client.props` dynamic property in the Hazelcast configuration)
 
@@ -153,12 +153,6 @@ Note that if you have Hazelcast embedded in your application and you want to use
 
 Please note that If you use metadata to store cluster member addresses on Eureka application "hazelcast" then the discovery plugin will only find the host and port stored in the metadata for that app, not for any other Eureka app.
 
-Please check more in [Hazelcast Eureka Code Samples](https://github.com/hazelcast/hazelcast-code-samples/tree/master/hazelcast-integration/eureka/springboot-embedded).
-
-## Code Samples
-
-Please find the Hazelcast Eureka Code Samples [here](https://github.com/hazelcast/hazelcast-code-samples/tree/master/hazelcast-integration/eureka/springboot-embedded).
-
 ## How to find us?
 
-In case of any question or issue, please raise a GH issue, send an email to [Hazelcast Google Groups](https://groups.google.com/forum/#!forum/hazelcast) or contact as directly via [Hazelcast Gitter](https://gitter.im/hazelcast/hazelcast).
+In case of any question or issue, please raise a GH issue or contact as directly via [Hazelcast Community Slack](https://hazelcastcommunity.slack.com).
