@@ -40,9 +40,9 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Matchers;
+import org.mockito.ArgumentMatchers;
 
-import javax.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.MediaType;
 import java.net.URI;
 import java.util.Collections;
 import java.util.List;
@@ -52,8 +52,8 @@ import static junit.framework.TestCase.assertNotNull;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.after;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
@@ -114,7 +114,7 @@ public class HazelcastClientTestCase extends HazelcastTestSupport {
     @Test
     public void testInstanceRegistration(){
 
-        EurekaHttpResponse<Applications> response = generateMockResponse(Collections.<InstanceInfo>emptyList());
+        EurekaHttpResponse<Applications> response = generateMockResponse(Collections.emptyList());
         when(requestHandler.getApplications()).thenReturn(response);
 
         factory.newHazelcastInstance();
@@ -134,7 +134,7 @@ public class HazelcastClientTestCase extends HazelcastTestSupport {
     public void testSimpleDiscovery(){
         ArgumentCaptor<InstanceInfo> captor = ArgumentCaptor.forClass(InstanceInfo.class);
 
-        EurekaHttpResponse<Applications> response = generateMockResponse(Collections.<InstanceInfo>emptyList());
+        EurekaHttpResponse<Applications> response = generateMockResponse(Collections.emptyList());
         when(requestHandler.getApplications()).thenReturn(response);
 
         HazelcastInstance hz1 = factory.newHazelcastInstance();
@@ -150,7 +150,7 @@ public class HazelcastClientTestCase extends HazelcastTestSupport {
         HazelcastInstance client = factory.newHazelcastClient();
         reset(requestHandler);
         when(requestHandler.getApplications()).thenReturn(response);
-        verify(requestHandler, timeout(1000).times(0)).register(Matchers.<InstanceInfo>any());
+        verify(requestHandler, timeout(1000).times(0)).register(ArgumentMatchers.any());
         assertClusterSizeEventually(2, client);
     }
 
@@ -158,7 +158,7 @@ public class HazelcastClientTestCase extends HazelcastTestSupport {
     public void testInstanceDown(){
         ArgumentCaptor<InstanceInfo> captor = ArgumentCaptor.forClass(InstanceInfo.class);
 
-        EurekaHttpResponse<Applications> response = generateMockResponse(Collections.<InstanceInfo>emptyList());
+        EurekaHttpResponse<Applications> response = generateMockResponse(Collections.emptyList());
         when(requestHandler.getApplications()).thenReturn(response);
 
         HazelcastInstance hz1 = factory.newHazelcastInstance();
@@ -190,7 +190,7 @@ public class HazelcastClientTestCase extends HazelcastTestSupport {
 
     @Test
     public void testExternalRegistration(){
-        EurekaHttpResponse<Applications> response = generateMockResponse(Collections.<InstanceInfo>emptyList());
+        EurekaHttpResponse<Applications> response = generateMockResponse(Collections.emptyList());
         when(requestHandler.getApplications()).thenReturn(response);
 
         Config config = new XmlConfigBuilder().build();
@@ -214,7 +214,7 @@ public class HazelcastClientTestCase extends HazelcastTestSupport {
         final String namespace = "hz";
         configure(namespace, appName);
 
-        EurekaHttpResponse<Applications> response = generateMockResponse(Collections.<InstanceInfo>emptyList(), appName);
+        EurekaHttpResponse<Applications> response = generateMockResponse(Collections.emptyList(), appName);
         when(requestHandler.getApplications()).thenReturn(response);
 
         Config config = new XmlConfigBuilder().build();

@@ -23,6 +23,7 @@ import com.hazelcast.spi.discovery.DiscoveryNode;
 import com.hazelcast.spi.discovery.DiscoveryStrategy;
 import com.hazelcast.spi.discovery.DiscoveryStrategyFactory;
 import com.netflix.discovery.EurekaClient;
+import com.netflix.discovery.shared.transport.jersey.TransportClientFactories;
 
 import java.util.Collection;
 import java.util.Map;
@@ -41,6 +42,7 @@ public class EurekaOneDiscoveryStrategyFactory
         PROPERTY_DEFINITIONS.addAll(EurekaOneProperties.EUREKA_CLIENT_PROPERTY_DEFINITIONS);
     }
 
+    private static TransportClientFactories clientFactories;
     private static EurekaClient eurekaClient;
     private static String groupName;
 
@@ -67,6 +69,15 @@ public class EurekaOneDiscoveryStrategyFactory
      */
     public static void setEurekaClient(EurekaClient eurekaClient) {
         EurekaOneDiscoveryStrategyFactory.eurekaClient = eurekaClient;
+    }
+
+    /**
+     * Allows to use already configured {@link TransportClientFactories} instead of using {@link com.netflix.discovery.shared.transport.jersey3.Jersey3TransportClientFactories}.
+     *
+     * @param clientFactories {@link TransportClientFactories} instance
+     */
+    public static void setTransportClientFactories(TransportClientFactories clientFactories) {
+        EurekaOneDiscoveryStrategyFactory.clientFactories = clientFactories;
     }
 
     /**

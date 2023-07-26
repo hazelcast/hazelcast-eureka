@@ -21,7 +21,7 @@ import com.netflix.appinfo.InstanceInfo;
 import com.netflix.discovery.shared.Application;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.mockito.Mockito.*;
 
@@ -49,8 +49,7 @@ public class EurekaOneDiscoveryStrategyClientTest extends AbstractEurekaOneDisco
 
     @Test
     public void shouldNotDeregisterWhenDestroyed(){
-        when(eurekaClient.getApplication(APPLICATION_NAME))
-                .thenReturn(new Application());
+        //UnnecessaryStubbingException: when(eurekaClient.getApplication(APPLICATION_NAME)).thenReturn(new Application());
 
         strategy.destroy();
 
