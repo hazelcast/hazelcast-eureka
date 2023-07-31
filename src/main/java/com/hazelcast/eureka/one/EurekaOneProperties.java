@@ -77,7 +77,7 @@ import static com.hazelcast.eureka.one.PropertyBasedEurekaClientConfigConstants.
 public final class EurekaOneProperties {
 
     /**
-     * <p>Configuration System Environment Prefix: <tt>hazelcast.eurekaone.</tt></p>
+     * <p>Configuration System Environment Prefix: <code>hazelcast.eurekaone.</code></p>
      * Defines the prefix for system environment variables and JVM command line parameters.
      * Defining or overriding properties as JVM parameters or using the system environment, those
      * properties need to be prefixed to prevent collision on property names.
@@ -93,56 +93,56 @@ public final class EurekaOneProperties {
     public static final String EUREKA_ONE_SYSTEM_PREFIX = "hazelcast.eurekaone";
 
     /**
-     * <p>Configuration key: <tt>use-classpath-eureka-client-props</tt></p>
-     * <p>Defines if the Discovery SPI plugin will use the standard Eureka <tt>eureka.client.props</tt></p>
-     * <p>If <tt>true</tt>, the classpath-based Eureka properties file will be used,
-     * otherwise the plugin will use properties defined in the <tt>discovery-strategy</tt> config itself.</p>
-     * <p>The default value is: <tt>true</tt></p>
+     * <p>Configuration key: <code>use-classpath-eureka-client-props</code></p>
+     * <p>Defines if the Discovery SPI plugin will use the standard Eureka <code>eureka.client.props</code></p>
+     * <p>If <code>true</code>, the classpath-based Eureka properties file will be used,
+     * otherwise the plugin will use properties defined in the <code>discovery-strategy</code> config itself.</p>
+     * <p>The default value is: <code>true</code></p>
      */
     public static final PropertyDefinition USE_CLASSPATH_EUREKA_CLIENT_PROPS =
             property("use-classpath-eureka-client-props", BOOLEAN);
 
     /**
-     * <p>Configuration key: <tt>name</tt></p>
+     * <p>Configuration key: <code>name</code></p>
      * <p>Defines the App Name.
-     * This is only used when <tt>use-classpath-eureka-client-props</tt> is <tt>false</tt>.</p>
-     * <p>The default value is: <tt>unknown</tt></p>
+     * This is only used when <code>use-classpath-eureka-client-props</code> is <code>false</code>.</p>
+     * <p>The default value is: <code>unknown</code></p>
      */
     public static final PropertyDefinition NAME =
             property("name", STRING);
 
     /**
-     * <p>Configuration key: <tt>datacenter</tt></p>
+     * <p>Configuration key: <code>datacenter</code></p>
      * <p>Defines the Eureka server datacenter.
-     * This is only used when <tt>use-classpath-eureka-client-props</tt> is <tt>false</tt>.</p>
+     * This is only used when <code>use-classpath-eureka-client-props</code> is <code>false</code>.</p>
      */
     public static final PropertyDefinition DATACENTER =
             property("datacenter", STRING);
 
     /**
-     * <p>Configuration key: <tt>self-registration</tt></p>
+     * <p>Configuration key: <code>self-registration</code></p>
      * <p>Defines if the Discovery SPI plugin will register itself with the Eureka 1 service discovery.</p>
-     * <p>The default value is: <tt>true</tt></p>
+     * <p>The default value is: <code>true</code></p>
      */
     public static final PropertyDefinition SELF_REGISTRATION = property("self-registration", BOOLEAN);
 
     /**
      * <p>
-     * Configuration key: <tt>use-metadata-for-host-and-port</tt>
+     * Configuration key: <code>use-metadata-for-host-and-port</code>
      * </p>
      * <p>
      * Defines if the Discovery SPI plugin will use Eureka metadata map to store host and port of Hazelcast
      * instance, and when it looks for other nodes it will use the metadata as well.
      * </p>
      * <p>
-     * The default value is: <tt>false</tt>
+     * The default value is: <code>false</code>
      * </p>
      */
     public static final PropertyDefinition USE_METADATA_FOR_HOST_AND_PORT = property("use-metadata-for-host-and-port", BOOLEAN);
 
     /**
      * <p>
-     * Configuration key: <tt>skip-eureka-registration-verification</tt>
+     * Configuration key: <code>skip-eureka-registration-verification</code>
      * </p>
      * <p>
      * When first node starts, it takes some time to do self-registration with
@@ -152,17 +152,17 @@ public final class EurekaOneProperties {
      * This option will speed up startup when starting first cluster node.
      * </p>
      * <p>
-     * The default value is: <tt>false</tt>
+     * The default value is: <code>false</code>
      * </p>
      */
     public static final PropertyDefinition SKIP_EUREKA_REGISTRATION_VERIFICATION =
             property("skip-eureka-registration-verification", BOOLEAN);
 
     /**
-     * <p>Configuration key: <tt>namespace</tt></p>
+     * <p>Configuration key: <code>namespace</code></p>
      * <p>Definition for providing different namespaces in order to not collide with other service registry clients in
      * eureka-client.properties file.</p>
-     * <p>The default value is: <tt>hazelcast</tt></p>
+     * <p>The default value is: <code>hazelcast</code></p>
      */
     public static final PropertyDefinition NAMESPACE = property("namespace", STRING);
 
