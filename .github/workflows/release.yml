@@ -15,17 +15,39 @@ jobs:
     runs-on: ubuntu-latest
     name: Deploy release
     steps:
-      - name: Determine tag to be released
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2.0.0
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Get Secrets
+        uses: aws-actions/aws-secretsmanager-get-secrets@v1
+        with:
+          secret-ids: |
+            DEVOPS_GITHUB_TOKEN,CN/DEVOPS_GITHUB_TOKEN
+
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          token: ${{ env.DEVOPS_GITHUB_TOKEN }}
+
+      - name: Create a New Tag
         run: |
           TAG=${GITHUB_REF:10}
           if [ -n "${{ github.event.inputs.tag }}" ]; then
-            TAG="${{ github.event.inputs.tag }}" 
+            TAG="${{ github.event.inputs.tag }}"
+            git tag ${TAG}
+            git push origin ${TAG}
           fi
           echo "TAG=${TAG}" >> $GITHUB_ENV
           echo "VERSION=${TAG:1}" >> $GITHUB_ENV
+
       - uses: actions/checkout@v3
         with:
           ref: "${{ env.TAG }}"
+
       - name: Setup JDK
         uses: actions/setup-java@v3
         with:
