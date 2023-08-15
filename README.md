@@ -2,7 +2,7 @@
 
 This repository contains a plugin which provides the automatic Hazelcast member discovery using Eureka Service Registry.
 
-***NOTE:*** *hazelcast-eureka-two* 3.x is compatible with *Eureka 2.x* and *Hazelcast 5.x*, for older hazelcast versions you need to use [eureka-one](/hazelcast/hazelcast-eureka/tree/eureka-one) branch.
+***NOTE:*** *hazelcast-eureka-two* 3.x is compatible with *Eureka 2.x* and *Hazelcast 5.x*, for older hazelcast versions you need to use [eureka-one](https://github.com/hazelcast/hazelcast-eureka/tree/eureka-one) branch.
 
 ## Embedded mode
 
