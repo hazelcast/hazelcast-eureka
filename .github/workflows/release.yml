@@ -82,13 +82,14 @@ jobs:
         uses: actions/checkout@v3
         with:
           token: ${{ env.DEVOPS_GITHUB_TOKEN }}
+          ref: master
 
       - name: Update version to Snapshot
         if: steps.release-notes.outcome == 'success'
         run: |
           git config user.email "devopshelm@hazelcast.com"
           git config user.name "devOpsHelm"
-          IFS='.' read -r major minor patch <<< "${{ env.TAG }}"
+          IFS='.' read -r major minor patch <<< "${{ env.VERSION }}"
           patch=$((patch + 1))
           SNAPSHOT_VERSION="$major.$minor.$patch-SNAPSHOT"
           mvn versions:set -DnewVersion=$SNAPSHOT_VERSION
