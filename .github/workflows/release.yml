@@ -1,9 +1,6 @@
 name: Deploy Release
 
 on:
-  # push:
-  #   tags:
-  #     - 'v*'
   workflow_dispatch:
     inputs:
       tag:
@@ -33,14 +30,19 @@ jobs:
         with:
           token: ${{ env.DEVOPS_GITHUB_TOKEN }}
 
-      - name: Create a New Tag
+      - name: Update version and create a new tag
         run: |
-          TAG=${GITHUB_REF:10}
-          if [ -n "${{ github.event.inputs.tag }}" ]; then
-            TAG="${{ github.event.inputs.tag }}"
-            git tag ${TAG}
-            git push origin ${TAG}
-          fi
+          git config user.email "devopshelm@hazelcast.com"
+          git config user.name "devOpsHelm"
+          TAG="${{ github.event.inputs.tag }}"
+          mvn versions:set -DnewVersion=${TAG:1}
+            if [[ -n $(git status -s) ]]; then
+              git add pom.xml
+              git commit -m "Updated version to '${TAG:1}'"
+              git push -u origin master
+            fi
+          git tag ${TAG}
+          git push origin ${TAG}
           echo "TAG=${TAG}" >> $GITHUB_ENV
           echo "VERSION=${TAG:1}" >> $GITHUB_ENV
 
@@ -68,8 +70,28 @@ jobs:
           MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
 
       - name: Create GitHub Release
+        id: release-notes
         uses: softprops/action-gh-release@v1
         with:
           append_body: true
           files: '**/target/hazelcast-eureka-two-${{ env.VERSION }}*.jar'
           name: "${{ env.VERSION }}"
+          tag_name: "${{ env.TAG }}"
+
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          token: ${{ env.DEVOPS_GITHUB_TOKEN }}
+
+      - name: Update version to Snapshot
+        if: steps.release-notes.outcome == 'success'
+        run: |
+          git config user.email "devopshelm@hazelcast.com"
+          git config user.name "devOpsHelm"
+          IFS='.' read -r major minor patch <<< "${{ env.TAG }}"
+          patch=$((patch + 1))
+          SNAPSHOT_VERSION="$major.$minor.$patch-SNAPSHOT"
+          mvn versions:set -DnewVersion=$SNAPSHOT_VERSION
+          git add pom.xml
+          git commit -m "Updated version to '$SNAPSHOT_VERSION'"
+          git push -u origin master
