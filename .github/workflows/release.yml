@@ -72,4 +72,5 @@ jobs:
         with:
           append_body: true
           files: '**/target/hazelcast-eureka-two-${{ env.VERSION }}*.jar'
-          name: "${{ env.TAG }}"
+          name: "${{ env.VERSION }}"
+          tag_name: "${{ env.TAG }}"
