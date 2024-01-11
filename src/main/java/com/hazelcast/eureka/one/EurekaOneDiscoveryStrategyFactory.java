@@ -26,6 +26,7 @@ import com.netflix.discovery.EurekaClient;
 import com.netflix.discovery.shared.transport.jersey.TransportClientFactories;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
 
 /**
@@ -54,12 +55,12 @@ public class EurekaOneDiscoveryStrategyFactory
                                                   Map<String, Comparable> properties) {
         EurekaOneDiscoveryStrategyBuilder builder = new EurekaOneDiscoveryStrategyBuilder();
         builder.setDiscoveryNode(discoveryNode).setILogger(logger).setProperties(properties)
-                .setEurekaClient(eurekaClient).setGroupName(groupName);
+                .setEurekaClient(eurekaClient).setTransportClientFactories(clientFactories).setGroupName(groupName);
         return builder.build();
     }
 
     public Collection<PropertyDefinition> getConfigurationProperties() {
-        return PROPERTY_DEFINITIONS;
+        return Collections.unmodifiableCollection(PROPERTY_DEFINITIONS);
     }
 
     /**
@@ -83,8 +84,7 @@ public class EurekaOneDiscoveryStrategyFactory
     /**
      * Set hazelcast cluster name.
      *
-     * @param groupName
-     *            hazelcast cluster name
+     * @param groupName hazelcast cluster name
      */
     public static void setGroupName(String groupName) {
         EurekaOneDiscoveryStrategyFactory.groupName = groupName;
