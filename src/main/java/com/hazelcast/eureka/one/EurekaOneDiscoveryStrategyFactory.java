@@ -54,7 +54,7 @@ public class EurekaOneDiscoveryStrategyFactory
                                                   Map<String, Comparable> properties) {
         EurekaOneDiscoveryStrategyBuilder builder = new EurekaOneDiscoveryStrategyBuilder();
         builder.setDiscoveryNode(discoveryNode).setILogger(logger).setProperties(properties)
-                .setEurekaClient(eurekaClient).setGroupName(groupName);
+                .setEurekaClient(eurekaClient).setGroupName(groupName).setTransportClientFactories(clientFactories);
         return builder.build();
     }
 
