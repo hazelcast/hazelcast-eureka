@@ -308,7 +308,6 @@ public class HazelcastClientTestCase extends HazelcastTestSupport {
 
     @Test
     public void testInstanceRegistrationUsingProvidedTransportClientFactories() {
-        System.out.println("!!!!!!!!!!!!!!!!!!!!");
         EurekaHttpClient eurekaClient = mock(EurekaHttpClient.class);
         EurekaInstanceConfig eurekaInstanceConfig = mock(EurekaInstanceConfig.class);
 
@@ -323,7 +322,6 @@ public class HazelcastClientTestCase extends HazelcastTestSupport {
 
         // use provided TransportClientFactories
         EurekaOneDiscoveryStrategyFactory.setGroupName("dev");
-        System.out.println("00000000000I'm here!!!!");
         EurekaOneDiscoveryStrategyFactory.setTransportClientFactories(transportClientFactories);
 
         Config config = new XmlConfigBuilder().build();
