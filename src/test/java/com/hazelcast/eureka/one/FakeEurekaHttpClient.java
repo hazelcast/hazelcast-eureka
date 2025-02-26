@@ -35,7 +35,7 @@ public class FakeEurekaHttpClient implements EurekaHttpClient {
     @Override
     public EurekaHttpResponse<Void> register(InstanceInfo info) {
         applications.getRegisteredApplications(info.getAppName()).addInstance(info);
-        return anEurekaHttpResponse(200).build();
+        return anEurekaHttpResponse(500).build();
     }
 
     @Override
@@ -45,6 +45,7 @@ public class FakeEurekaHttpClient implements EurekaHttpClient {
 
     @Override
     public EurekaHttpResponse<InstanceInfo> sendHeartBeat(String appName, String id, InstanceInfo info, InstanceInfo.InstanceStatus overriddenStatus) {
+        System.out.println("sendHeartBeat");
         info.setStatus(overriddenStatus);
         return anEurekaHttpResponse(200, info)
                 .type(MediaType.APPLICATION_JSON_TYPE)
