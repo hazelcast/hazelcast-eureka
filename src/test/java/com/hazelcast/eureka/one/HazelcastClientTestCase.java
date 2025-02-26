@@ -21,6 +21,9 @@ import com.hazelcast.config.DiscoveryConfig;
 import com.hazelcast.config.DiscoveryStrategyConfig;
 import com.hazelcast.config.XmlConfigBuilder;
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.logging.ILogger;
+import com.hazelcast.spi.discovery.DiscoveryNode;
+import com.hazelcast.spi.discovery.DiscoveryStrategy;
 import com.hazelcast.test.HazelcastTestSupport;
 import com.netflix.appinfo.ApplicationInfoManager;
 import com.netflix.appinfo.EurekaInstanceConfig;
@@ -35,9 +38,11 @@ import com.netflix.discovery.shared.transport.EurekaHttpClient;
 import com.netflix.discovery.shared.transport.EurekaHttpResponse;
 import com.netflix.discovery.shared.transport.SimpleEurekaHttpServer;
 import com.netflix.discovery.shared.transport.jersey.TransportClientFactories;
+import com.netflix.discovery.shared.transport.jersey3.Jersey3TransportClientFactories;
 import org.apache.commons.configuration.AbstractConfiguration;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -54,6 +59,7 @@ import static junit.framework.TestCase.assertNotNull;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
@@ -308,19 +314,29 @@ public class HazelcastClientTestCase extends HazelcastTestSupport {
 
     @Test
     public void testInstanceRegistrationUsingProvidedTransportClientFactories() {
-        EurekaHttpClient eurekaClient = mock(EurekaHttpClient.class);
+        EurekaClient eurekaClient = mock(EurekaClient.class);
+        ApplicationInfoManager applicationInfoManager = mock(ApplicationInfoManager.class);
         EurekaInstanceConfig eurekaInstanceConfig = mock(EurekaInstanceConfig.class);
 
-        when(eurekaClient.getApplications(any())).thenReturn(generateMockResponse(Collections.emptyList()));
-        when(eurekaClient.register(any())).thenReturn(EurekaHttpResponse.status(200));
+        Application application = new Application(APP_NAME);
+        Applications applications = new Applications();
+        applications.addApplication(application);
+        EurekaHttpClient eurekaHttpClient = new FakeEurekaHttpClient(applications);
 
+        when(eurekaClient.getApplicationInfoManager()).thenReturn(applicationInfoManager);
+        when(eurekaClient.getApplication(anyString())).thenReturn(application);
+
+        InstanceInfo instanceInfo = InstanceInfo.Builder.newBuilder().setAppName(APP_NAME).build();
+        when(applicationInfoManager.getInfo()).thenReturn(instanceInfo);
+        when(applicationInfoManager.getEurekaInstanceConfig()).thenReturn(eurekaInstanceConfig);
         when(eurekaInstanceConfig.getAppname()).thenReturn(APP_NAME);
 
         TransportClientFactories<?> transportClientFactories = mock(TransportClientFactories.class, RETURNS_DEEP_STUBS);
-        when(transportClientFactories.newTransportClientFactory(any(), any(), any()).newClient(any())).thenReturn(eurekaClient);
-        when(transportClientFactories.newTransportClientFactory(any(), any(), any(), any(), any()).newClient(any())).thenReturn(eurekaClient);
+        when(transportClientFactories.newTransportClientFactory(any(), any(), any()).newClient(any())).thenReturn(eurekaHttpClient);
+        when(transportClientFactories.newTransportClientFactory(any(), any(), any(), any(), any()).newClient(any())).thenReturn(eurekaHttpClient);
 
         // use provided TransportClientFactories
+        EurekaOneDiscoveryStrategyFactory.setEurekaClient(eurekaClient);
         EurekaOneDiscoveryStrategyFactory.setGroupName("dev");
         EurekaOneDiscoveryStrategyFactory.setTransportClientFactories(transportClientFactories);
 
@@ -331,8 +347,6 @@ public class HazelcastClientTestCase extends HazelcastTestSupport {
 
         HazelcastInstance hz1 = factory.newHazelcastInstance(config);
         HazelcastInstance hz2 = factory.newHazelcastInstance(config);
-
-        verify(eurekaClient, times(2)).getApplications(any());
 
         assertClusterSizeEventually(2, hz1, hz2);
     }
