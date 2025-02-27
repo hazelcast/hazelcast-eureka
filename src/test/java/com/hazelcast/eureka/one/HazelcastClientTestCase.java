@@ -34,6 +34,7 @@ import com.netflix.discovery.shared.Applications;
 import com.netflix.discovery.shared.transport.EurekaHttpClient;
 import com.netflix.discovery.shared.transport.EurekaHttpResponse;
 import com.netflix.discovery.shared.transport.SimpleEurekaHttpServer;
+import com.netflix.discovery.shared.transport.jersey.TransportClientFactories;
 import org.apache.commons.configuration.AbstractConfiguration;
 import org.junit.After;
 import org.junit.Before;
@@ -43,6 +44,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
 
 import jakarta.ws.rs.core.MediaType;
+
 import java.net.URI;
 import java.util.Collections;
 import java.util.List;
@@ -54,6 +56,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.after;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
@@ -80,7 +83,7 @@ public class HazelcastClientTestCase extends HazelcastTestSupport {
     private EurekaHttpClient requestHandler;
 
     @Before
-    public void setup(){
+    public void setup() {
         server = resource.getEurekaHttpServer();
         requestHandler = resource.getRequestHandler();
         factory = new TestHazelcastFactory();
@@ -88,11 +91,11 @@ public class HazelcastClientTestCase extends HazelcastTestSupport {
         reset(requestHandler);
 
         configure(EurekaOneDiscoveryStrategy.DEFAULT_NAMESPACE, APP_NAME);
-        
+
         EurekaOneDiscoveryStrategyFactory.setEurekaClient(null);
     }
 
-    private void configure(String namespace, String appName){
+    private void configure(String namespace, String appName) {
         URI serviceUri = server.getServiceURI();
         AbstractConfiguration configInstance = ConfigurationManager.getConfigInstance();
         configInstance.setProperty(namespace + ".serviceUrl.default", serviceUri.toString());
@@ -101,18 +104,19 @@ public class HazelcastClientTestCase extends HazelcastTestSupport {
     }
 
     @After
-    public void tearDown(){
-        if(null != server){
+    public void tearDown() {
+        if (null != server) {
             server.shutdown();
         }
 
-        if(null != factory){
+        if (null != factory) {
             factory.shutdownAll();
         }
+        EurekaOneDiscoveryStrategyFactory.setTransportClientFactories(null);
     }
 
     @Test
-    public void testInstanceRegistration(){
+    public void testInstanceRegistration() {
 
         EurekaHttpResponse<Applications> response = generateMockResponse(Collections.emptyList());
         when(requestHandler.getApplications()).thenReturn(response);
@@ -131,7 +135,7 @@ public class HazelcastClientTestCase extends HazelcastTestSupport {
     }
 
     @Test
-    public void testSimpleDiscovery(){
+    public void testSimpleDiscovery() {
         ArgumentCaptor<InstanceInfo> captor = ArgumentCaptor.forClass(InstanceInfo.class);
 
         EurekaHttpResponse<Applications> response = generateMockResponse(Collections.emptyList());
@@ -155,7 +159,7 @@ public class HazelcastClientTestCase extends HazelcastTestSupport {
     }
 
     @Test
-    public void testInstanceDown(){
+    public void testInstanceDown() {
         ArgumentCaptor<InstanceInfo> captor = ArgumentCaptor.forClass(InstanceInfo.class);
 
         EurekaHttpResponse<Applications> response = generateMockResponse(Collections.emptyList());
@@ -174,8 +178,8 @@ public class HazelcastClientTestCase extends HazelcastTestSupport {
         verify(requestHandler, timeout(5000).times(1)).cancel(anyString(), id.capture());
 
         reset(requestHandler);
-        for(InstanceInfo info : captor.getAllValues()){
-            if(info.getId().equals(id.getValue())){
+        for (InstanceInfo info : captor.getAllValues()) {
+            if (info.getId().equals(id.getValue())) {
                 captor.getAllValues().remove(info);
                 break;
             }
@@ -189,7 +193,7 @@ public class HazelcastClientTestCase extends HazelcastTestSupport {
 
 
     @Test
-    public void testExternalRegistration(){
+    public void testExternalRegistration() {
         EurekaHttpResponse<Applications> response = generateMockResponse(Collections.emptyList());
         when(requestHandler.getApplications()).thenReturn(response);
 
@@ -209,7 +213,7 @@ public class HazelcastClientTestCase extends HazelcastTestSupport {
     }
 
     @Test
-    public void testNamespaceRegistration(){
+    public void testNamespaceRegistration() {
         final String appName = "other";
         final String namespace = "hz";
         configure(namespace, appName);
@@ -233,7 +237,7 @@ public class HazelcastClientTestCase extends HazelcastTestSupport {
         assertThat(actual, is(appName));
 
     }
-    
+
     @Test
     public void testInstanceRegistrationUsingProvidedEurekaClient() {
         EurekaClient eurekaClient = mock(EurekaClient.class);
@@ -256,10 +260,10 @@ public class HazelcastClientTestCase extends HazelcastTestSupport {
         DiscoveryConfig discoveryConfig = config.getNetworkConfig().getJoin().getDiscoveryConfig();
         DiscoveryStrategyConfig strategyConfig = discoveryConfig.getDiscoveryStrategyConfigs().iterator().next();
         strategyConfig.addProperty("use-metadata-for-host-and-port", false);
-        
+
         HazelcastInstance hz1 = factory.newHazelcastInstance(config);
         HazelcastInstance hz2 = factory.newHazelcastInstance(config);
-        
+
         verify(eurekaClient, times(2)).getApplicationInfoManager();
         verify(eurekaClient, times(2)).getApplication(APP_NAME);
         verify(applicationInfoManager, atLeastOnce()).setInstanceStatus(InstanceStatus.UP);
@@ -268,7 +272,7 @@ public class HazelcastClientTestCase extends HazelcastTestSupport {
         assertClusterSizeEventually(2, hz2);
     }
 
-    
+
     @Test
     public void testInstanceRegistrationUsingProvidedEurekaClientAndMetadata() {
         EurekaClient eurekaClient = mock(EurekaClient.class);
@@ -279,7 +283,7 @@ public class HazelcastClientTestCase extends HazelcastTestSupport {
         when(eurekaClient.getApplication(anyString())).thenReturn(new Application(APP_NAME));
 
         InstanceInfo instanceInfo = InstanceInfo.Builder.newBuilder().setAppName(APP_NAME).build();
-		when(applicationInfoManager.getInfo()).thenReturn(instanceInfo);
+        when(applicationInfoManager.getInfo()).thenReturn(instanceInfo);
         when(applicationInfoManager.getEurekaInstanceConfig()).thenReturn(eurekaInstanceConfig);
         when(eurekaInstanceConfig.getAppname()).thenReturn(APP_NAME);
 
@@ -291,10 +295,10 @@ public class HazelcastClientTestCase extends HazelcastTestSupport {
         DiscoveryConfig discoveryConfig = config.getNetworkConfig().getJoin().getDiscoveryConfig();
         DiscoveryStrategyConfig strategyConfig = discoveryConfig.getDiscoveryStrategyConfigs().iterator().next();
         strategyConfig.addProperty("use-metadata-for-host-and-port", true);
-        
+
         HazelcastInstance hz1 = factory.newHazelcastInstance(config);
         HazelcastInstance hz2 = factory.newHazelcastInstance(config);
-        
+
         verify(eurekaClient, times(2)).getApplicationInfoManager();
         verify(eurekaClient, times(2)).getApplication(APP_NAME);
         verify(applicationInfoManager, atLeastOnce()).setInstanceStatus(InstanceStatus.UP);
@@ -303,15 +307,54 @@ public class HazelcastClientTestCase extends HazelcastTestSupport {
         assertClusterSizeEventually(2, hz2);
     }
 
+    @Test
+    public void testInstanceRegistrationUsingProvidedTransportClientFactories() {
+        EurekaClient eurekaClient = mock(EurekaClient.class);
+        ApplicationInfoManager applicationInfoManager = mock(ApplicationInfoManager.class);
+        EurekaInstanceConfig eurekaInstanceConfig = mock(EurekaInstanceConfig.class);
+
+        Application application = new Application(APP_NAME);
+        Applications applications = new Applications();
+        applications.addApplication(application);
+        EurekaHttpClient eurekaHttpClient = new FakeEurekaHttpClient(applications);
+
+        when(eurekaClient.getApplicationInfoManager()).thenReturn(applicationInfoManager);
+        when(eurekaClient.getApplication(anyString())).thenReturn(application);
+
+        InstanceInfo instanceInfo = InstanceInfo.Builder.newBuilder().setAppName(APP_NAME).build();
+        when(applicationInfoManager.getInfo()).thenReturn(instanceInfo);
+        when(applicationInfoManager.getEurekaInstanceConfig()).thenReturn(eurekaInstanceConfig);
+        when(eurekaInstanceConfig.getAppname()).thenReturn(APP_NAME);
+
+        TransportClientFactories<?> transportClientFactories = mock(TransportClientFactories.class, RETURNS_DEEP_STUBS);
+        when(transportClientFactories.newTransportClientFactory(any(), any(), any()).newClient(any())).thenReturn(eurekaHttpClient);
+        when(transportClientFactories.newTransportClientFactory(any(), any(), any(), any(), any()).newClient(any())).thenReturn(eurekaHttpClient);
+
+        // use provided TransportClientFactories
+        EurekaOneDiscoveryStrategyFactory.setEurekaClient(eurekaClient);
+        EurekaOneDiscoveryStrategyFactory.setGroupName("dev");
+        EurekaOneDiscoveryStrategyFactory.setTransportClientFactories(transportClientFactories);
+
+        Config config = new XmlConfigBuilder().build();
+        DiscoveryConfig discoveryConfig = config.getNetworkConfig().getJoin().getDiscoveryConfig();
+        DiscoveryStrategyConfig strategyConfig = discoveryConfig.getDiscoveryStrategyConfigs().iterator().next();
+        strategyConfig.addProperty("use-metadata-for-host-and-port", true);
+
+        HazelcastInstance hz1 = factory.newHazelcastInstance(config);
+        HazelcastInstance hz2 = factory.newHazelcastInstance(config);
+
+        assertClusterSizeEventually(2, hz1, hz2);
+    }
+
     private EurekaHttpResponse<Applications> generateMockResponse(List<InstanceInfo> infoList) {
         return generateMockResponse(infoList, APP_NAME);
     }
 
-    private EurekaHttpResponse<Applications> generateMockResponse(List<InstanceInfo> infoList, String appName){
+    private EurekaHttpResponse<Applications> generateMockResponse(List<InstanceInfo> infoList, String appName) {
 
         Application application = new Application();
         application.setName(appName);
-        for(InstanceInfo info : infoList){
+        for (InstanceInfo info : infoList) {
             application.addInstance(info);
         }
 
