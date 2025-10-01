@@ -32,7 +32,7 @@
         <jdk.version>17</jdk.version>
         <hazelcast.version>5.2.1</hazelcast.version>
         <eureka.client.version>2.0.0</eureka.client.version>
-        <eureka.commons.codec.version>1.15</eureka.commons.codec.version>
+        <eureka.commons.codec.version>1.19.0</eureka.commons.codec.version>
         <eureka.gson.version>2.10.1</eureka.gson.version>
         <compactmap.version>2.0</compactmap.version>
         <archaius.core>0.7.7</archaius.core>
