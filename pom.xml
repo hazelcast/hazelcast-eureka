@@ -43,7 +43,7 @@
         <jetty.version>6.1.26</jetty.version>
         <javax.inject.version>1</javax.inject.version>
         <guava.version>31.1-jre</guava.version>
-        <xstream.version>1.4.19</xstream.version>
+        <xstream.version>1.4.21</xstream.version>
         <jackson.version>2.13.4</jackson.version>
         <jackson.databind.version>2.13.4</jackson.databind.version>
         <httpclient.version>4.5.13</httpclient.version>
