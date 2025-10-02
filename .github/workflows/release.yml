@@ -74,7 +74,7 @@ jobs:
 
       - name: Create GitHub Release
         id: release-notes
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           append_body: true
           files: '**/target/hazelcast-eureka-two-${{ env.VERSION }}*.jar'
