@@ -26,7 +26,7 @@ jobs:
             DEVOPS_GITHUB_TOKEN,CN/DEVOPS_GITHUB_TOKEN
 
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v6
         with:
           token: ${{ env.DEVOPS_GITHUB_TOKEN }}
 
@@ -48,7 +48,7 @@ jobs:
         env:
           MAVEN_ARGS: --batch-mode --no-transfer-progress
 
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v6
         with:
           ref: "${{ env.TAG }}"
 
@@ -82,7 +82,7 @@ jobs:
           tag_name: "${{ env.TAG }}"
 
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v6
         with:
           token: ${{ env.DEVOPS_GITHUB_TOKEN }}
           ref: master
