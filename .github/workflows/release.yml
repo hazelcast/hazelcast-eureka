@@ -13,20 +13,20 @@ jobs:
     name: Deploy release
     steps:
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v2.0.0
+        uses: aws-actions/configure-aws-credentials@v5
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
       - name: Get Secrets
-        uses: aws-actions/aws-secretsmanager-get-secrets@v1
+        uses: aws-actions/aws-secretsmanager-get-secrets@v2
         with:
           secret-ids: |
             DEVOPS_GITHUB_TOKEN,CN/DEVOPS_GITHUB_TOKEN
 
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v6
         with:
           token: ${{ env.DEVOPS_GITHUB_TOKEN }}
 
@@ -45,8 +45,10 @@ jobs:
           git push origin ${TAG}
           echo "TAG=${TAG}" >> $GITHUB_ENV
           echo "VERSION=${TAG:1}" >> $GITHUB_ENV
+        env:
+          MAVEN_ARGS: --batch-mode --no-transfer-progress
 
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v6
         with:
           ref: "${{ env.TAG }}"
 
@@ -63,11 +65,12 @@ jobs:
           gpg-passphrase: MAVEN_GPG_PASSPHRASE
 
       - name: Deploy release
-        run: mvn deploy -Prelease --batch-mode -DskipTests -DretryFailedDeploymentCount=3
+        run: mvn deploy --activate-profiles release -DskipTests -DretryFailedDeploymentCount=3
         env:
           MAVEN_USERNAME: ${{ secrets.SONATYPE_OSS_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.SONATYPE_OSS_PASSWORD }}
           MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
+          MAVEN_ARGS: --batch-mode --no-transfer-progress
 
       - name: Create GitHub Release
         id: release-notes
@@ -79,7 +82,7 @@ jobs:
           tag_name: "${{ env.TAG }}"
 
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v6
         with:
           token: ${{ env.DEVOPS_GITHUB_TOKEN }}
           ref: master
