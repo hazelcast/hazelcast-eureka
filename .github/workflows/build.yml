@@ -23,6 +23,7 @@ jobs:
         with:
           java-version: ${{ matrix.java }}
           architecture: ${{ matrix.architecture }}
+          distribution: 'temurin'
 
       - uses: actions/cache@v3.3.1
         with:
