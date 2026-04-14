@@ -10,30 +10,17 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     name: Deploy release
     steps:
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v5
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
-
-      - name: Get Secrets
-        uses: aws-actions/aws-secretsmanager-get-secrets@v2
-        with:
-          secret-ids: |
-            DEVOPS_GITHUB_TOKEN,CN/DEVOPS_GITHUB_TOKEN
-
       - name: Checkout
         uses: actions/checkout@v6
-        with:
-          token: ${{ env.DEVOPS_GITHUB_TOKEN }}
 
       - name: Update version and create a new tag
         run: |
-          git config user.email "devopshelm@hazelcast.com"
-          git config user.name "devOpsHelm"
+          git config user.name "${GITHUB_ACTOR}"
+          git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
           TAG="${{ github.event.inputs.tag }}"
           mvn versions:set -DnewVersion=${TAG:1}
             if [[ -n $(git status -s) ]]; then
@@ -84,14 +71,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
         with:
-          token: ${{ env.DEVOPS_GITHUB_TOKEN }}
           ref: master
 
       - name: Update version to Snapshot
         if: steps.release-notes.outcome == 'success'
         run: |
-          git config user.email "devopshelm@hazelcast.com"
-          git config user.name "devOpsHelm"
+          git config user.name "${GITHUB_ACTOR}"
+          git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
           IFS='.' read -r major minor patch <<< "${{ env.VERSION }}"
           patch=$((patch + 1))
           SNAPSHOT_VERSION="$major.$minor.$patch-SNAPSHOT"
