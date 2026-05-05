@@ -44,7 +44,7 @@
         <javax.inject.version>1</javax.inject.version>
         <guava.version>31.1-jre</guava.version>
         <xstream.version>1.4.19</xstream.version>
-        <jackson.version>2.13.4</jackson.version>
+        <jackson.version>2.21</jackson.version>
         <jackson.databind.version>2.13.4</jackson.databind.version>
         <httpclient.version>4.5.13</httpclient.version>
         <mockito.version>5.1.1</mockito.version>
