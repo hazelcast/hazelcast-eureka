@@ -51,7 +51,7 @@
         <maven.checkstyle.plugin.version>3.6.0</maven.checkstyle.plugin.version>
         <maven.findbugs.plugin.version>3.0.5</maven.findbugs.plugin.version>
         <maven.sonar.plugin.version>4.0.0.4121</maven.sonar.plugin.version>
-        <maven.jacoco.plugin.version>0.8.14</maven.jacoco.plugin.version>
+        <maven.jacoco.plugin.version>0.8.15</maven.jacoco.plugin.version>
         <maven.gpg.plugin.version>3.2.8</maven.gpg.plugin.version>
         <maven.javadoc.plugin.version>3.12.0</maven.javadoc.plugin.version>
     </properties>
