@@ -15,7 +15,7 @@ jobs:
     name: Deploy release
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Update version and create a new tag
         run: |
@@ -35,7 +35,7 @@ jobs:
         env:
           MAVEN_ARGS: --batch-mode --no-transfer-progress
 
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           ref: "${{ env.TAG }}"
 
@@ -69,7 +69,7 @@ jobs:
           tag_name: "${{ env.TAG }}"
 
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: master
 
