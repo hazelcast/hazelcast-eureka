@@ -43,7 +43,7 @@
         <javax.inject.version>1</javax.inject.version>
         <guava.version>33.6.0-jre</guava.version>
         <xstream.version>1.4.19</xstream.version>
-        <httpclient.version>4.5.13</httpclient.version>
+        <httpclient.version>4.5.14</httpclient.version>
         <mockito.version>5.23.0</mockito.version>
 
         <maven.source.plugin.version>3.4.0</maven.source.plugin.version>
