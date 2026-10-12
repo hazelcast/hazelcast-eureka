@@ -30,6 +30,6 @@ jobs:
 
       - name: Build with Maven
         run: |
-          mvn verify
+          ./mvnw verify
         env:
           MAVEN_ARGS: --batch-mode --no-transfer-progress
